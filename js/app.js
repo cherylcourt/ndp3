@@ -28,6 +28,7 @@ var Item = function(sprite, x, y, width, verticalBuffer) {
 
 Item.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+      
 }
 
 Item.prototype.collidingWith = function(item) {
@@ -46,8 +47,6 @@ Item.prototype.reset = function() {
   this.y = this.startingYPosition;
 }
 
-// TODO: refactor out duplicated code (e.g. the speed and row selection functionality)
-// Enemies our player must avoid
 var Enemy = function() {
     this.verticalBuffer = 57;
 
@@ -55,10 +54,14 @@ var Enemy = function() {
       return Math.floor(Math.random() * 3) * 83 + this.verticalBuffer;
     }
 
-    Item.call(this, 'images/enemy-bug.png', -200, this.generateYPosition(), 86, this.verticalBuffer)
+    Item.call(this, 
+              'images/enemy-bug.png', 
+              -102, 
+              this.generateYPosition(), 
+              86, 
+              this.verticalBuffer)
 
     this.setSpeed();
-
 }
 
 Enemy.inheritsFrom(Item);
@@ -66,9 +69,9 @@ Enemy.inheritsFrom(Item);
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-    // if the enemy runs well off the screen, reset the enemy so that it can
+    // if the enemy runs off the screen, reset the enemy so that it can
     // appear on the screen again
-    if (this.x > canvas.width+200) {
+    if (this.x > canvas.width+102) {
       this.reset();
     }
     // any movement is multiplied by the dt parameter to ensure the game
@@ -86,7 +89,6 @@ Enemy.prototype.setSpeed = function () {
     this.speed= Math.floor((Math.random() * 500) + 100); 
 }
 
-//TODO: add comments
 var Player = function() {
     Item.call(this, 'images/char-boy.png', 202, 380, 36, 48)
     this.verticalMove = 83;
@@ -96,13 +98,11 @@ var Player = function() {
 Player.inheritsFrom(Item);
 
 Player.prototype.update = function() {
-  // TODO: implement this function, yo
   // as per the comment in engine.js; this method should focus purely
   // on updating the data/properties related to the object
   for(var enemy in allEnemies) {
-  //TODO: create a clipping region for both enemy and player and see if they
-  //intersect
     if(allEnemies[enemy].collidingWith(this)) {
+      consecutiveSuccesses = 0;
       this.reset();
       break;
     }
@@ -110,19 +110,25 @@ Player.prototype.update = function() {
 }
 
 Player.prototype.handleInput = function(input) {
-  switch (input) {
-    case 'left':
-      this.moveLeft();
-      break;
-    case 'up':
-      this.moveUp();
-      break;
-    case 'right':
-      this.moveRight();
-      break;
-    case 'down':
-      this.moveDown();
-      break;
+  if (input == 'esc') {
+    pauseGame = !pauseGame;
+  }
+
+  if(!pauseGame) {
+    switch (input) {
+      case 'left':
+        this.moveLeft();
+        break;
+      case 'up':
+        this.moveUp();
+        break;
+      case 'right':
+        this.moveRight();
+        break;
+      case 'down':
+        this.moveDown();
+        break;
+    }
   }
 }
 
@@ -142,6 +148,8 @@ Player.prototype.moveUp = function() {
   if(this.y > this.verticalMove) {
     this.y -= this.verticalMove;
   } else {
+    // the player has made it to the top row
+    consecutiveSuccesses++;
     this.reset();
   }
 }
@@ -152,16 +160,13 @@ Player.prototype.moveDown = function() {
   }  
 }
 
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
 allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
 player = new Player();
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+// This listens for key presses and sends the keys to the Player.handleInput() method. 
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
+        27: 'esc',
         37: 'left',
         38: 'up',
         39: 'right',

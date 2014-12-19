@@ -92,10 +92,13 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
+      if(!pauseGame) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
         player.update();
+      }
+
     }
 
     /* This function initially draws the "game level", it will then call
@@ -137,8 +140,11 @@ var Engine = (function(global) {
             }
         }
 
-
         renderEntities();
+        renderConsecutiveSuccesses();
+        if(pauseGame) {
+          renderPauseScreen();
+        }
     }
 
     /* This function is called by the render function and is called on each game
@@ -154,6 +160,32 @@ var Engine = (function(global) {
         });
 
         player.render();
+    }
+
+    function renderConsecutiveSuccesses() {
+        ctx.fillStyle = 'white';
+        ctx.font = "20pt Nunito, sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText(consecutiveSuccesses.toString(), canvas.width - 20, 90);
+    }
+
+    function renderPauseScreen() {
+      renderOverlay();
+
+      ctx.fillStyle = 'white';
+      ctx.font = "20pt Nunito, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Press ESC to Resume Game", canvas.width/2, 100);
+    }
+
+    function renderOverlay() {
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = 'black';
+      ctx.fillRect(10, 60, 485, 516);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = 'white';
+      ctx.strokeRect(10, 60, 485, 516);
+      ctx.strokeRect(9, 59, 486, 517);
     }
 
     /* This function does nothing but it could have been a good place to
@@ -182,4 +214,7 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
+    global.pauseGame = false;
+    global.success = false;
+    global.consecutiveSuccesses = 0;
 })(this);
