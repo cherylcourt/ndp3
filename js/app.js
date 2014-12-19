@@ -1,53 +1,99 @@
-// TODO: refactor Enemy and Player classes to derive from a superclass
+var Item = function(sprite, x, y, width, verticalBuffer) {
+    // The image/sprite for our enemies, this uses
+    // a helper we've provided to easily load images
+    this.sprite = sprite;
+    this.startingXPosition = x;
+    this.startingYPosition = y;
+    this.x = x; // Item's current x-position
+    this.y = y; // Item's current y-position
+    this.halfVisibleWidth = width / 2; 
+    this.rowAdjust = verticalBuffer;
+
+    this.midPoint = function() {
+      return this.x + 50.1;
+    }
+
+    this.visibleLeft = function() {
+      return this.midPoint() - this.halfVisibleWidth;
+    }
+
+    this.visibleRight = function() {
+      return this.midPoint() + this.halfVisibleWidth;
+    }
+
+    this.onRow = function() {
+      return (this.y - this.rowAdjust)/83;
+    }
+}
+
+Item.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+Item.prototype.collidingWith = function(item) {
+  if(this.onRow() == item.onRow()) {
+    // the two items are on the same row; check to see if they are touching each other
+    return (item.visibleLeft() < this.visibleRight() && 
+            item.visibleLeft() > this.visibleLeft()) 
+           ||
+           (item.visibleRight() < this.visibleRight() && 
+            item.visibleRight() > this.visibleLeft()); 
+  }
+}
+
+Item.prototype.reset = function() {
+  this.x = this.startingXPosition;
+  this.y = this.startingYPosition;
+}
+
 // TODO: refactor out duplicated code (e.g. the speed and row selection functionality)
 // Enemies our player must avoid
 var Enemy = function() {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
+    this.verticalBuffer = 57;
 
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
-    this.sprite = 'images/enemy-bug.png';
-    this.startingXPosition = -200;
-    this.speed = Math.floor((Math.random() * 500) + 100);
+    this.generateYPosition = function() {
+      return Math.floor(Math.random() * 3) * 83 + this.verticalBuffer;
+    }
 
-    this.x = this.startingXPosition;
-    this.y = Math.floor(Math.random() * 3) *83 + 57;
+    Item.call(this, 'images/enemy-bug.png', -200, this.generateYPosition(), 86, this.verticalBuffer)
+
+    this.setSpeed();
+
 }
+
+Enemy.inheritsFrom(Item);
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
+    // if the enemy runs well off the screen, reset the enemy so that it can
+    // appear on the screen again
     if (this.x > canvas.width+200) {
-      this.y = Math.floor(Math.random() * 3) * 83 + 57;
-      this.speed = Math.floor((Math.random() * 300)) + 100;
-      this.x = this.startingXPosition;
+      this.reset();
     }
+    // any movement is multiplied by the dt parameter to ensure the game
+    // runs at the same speed for all computers.
     this.x += this.speed * dt;
 }
 
-Enemy.prototype.collidedWith = function(player) {
-  // figure out if clipping regions intersect and if player is on the same row as an enemy
+Enemy.prototype.reset = function() {
+    this.y = this.generateYPosition();
+    this.x = this.startingXPosition;
+    this.setSpeed();
 }
 
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+Enemy.prototype.setSpeed = function () {
+    this.speed= Math.floor((Math.random() * 500) + 100); 
 }
 
 //TODO: add comments
 var Player = function() {
-    this.sprite = 'images/char-boy.png';
-    this.startingXPosition = 202;
-    this.startingYPosition = 380;
-    this.x = this.startingXPosition;
-    this.y = this.startingYPosition;
+    Item.call(this, 'images/char-boy.png', 202, 380, 36, 48)
     this.verticalMove = 83;
     this.horizontalMove = 101;
 }
+
+Player.inheritsFrom(Item);
 
 Player.prototype.update = function() {
   // TODO: implement this function, yo
@@ -56,16 +102,11 @@ Player.prototype.update = function() {
   for(var enemy in allEnemies) {
   //TODO: create a clipping region for both enemy and player and see if they
   //intersect
-    if(allEnemies[enemy].collidedWith(this)) {
+    if(allEnemies[enemy].collidingWith(this)) {
       this.reset();
       break;
     }
   }
-}
-
-// Draw the player on the screen, required method for game
-Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
 Player.prototype.handleInput = function(input) {
@@ -109,11 +150,6 @@ Player.prototype.moveDown = function() {
   if(this.y < this.startingYPosition) {
     this.y += this.verticalMove;
   }  
-}
-
-Player.prototype.reset = function() {
-  this.x = this.startingXPosition;
-  this.y = this.startingYPosition;
 }
 
 // Now instantiate your objects.
