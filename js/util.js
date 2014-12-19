@@ -3,6 +3,8 @@
  * immediately following the creation of a class constructor for a class that wants
  * to be a subclass of another and inherit its properties and methods
  *
+ * Reference: This code snippet was taken from http://phrogz.net/js/classes/OOPinJS2.html
+ *
  * e.g.
  * ANewSubClass = function() {}
  * ANewSubClass.inheritsFrom(ExistingClass)
