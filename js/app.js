@@ -21,25 +21,70 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
+//TODO: add comments
 var Player = function() {
-  //put attributes here
     this.sprite = 'images/char-boy.png';
-    this.x = 150;
-    this.y = 405;
+    this.startingXPosition = 202;
+    this.startingYPosition = 380;
+    this.x = this.startingXPosition;
+    this.y = this.startingYPosition;
+    this.verticalMove = 83;
+    this.horizontalMove = 101;
 }
 
-Player.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
+Player.prototype.update = function() {
+  // TODO: implement this function, yo
+  // as per the comment in engine.js; this method should focus purely
+  // on updating the data/properties related to the object
 }
 
 // Draw the player on the screen, required method for game
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+Player.prototype.handleInput = function(input) {
+  switch (input) {
+    case 'left':
+      this.moveLeft();
+      break;
+    case 'up':
+      this.moveUp();
+      break;
+    case 'right':
+      this.moveRight();
+      break;
+    case 'down':
+      this.moveDown();
+      break;
+  }
+}
+
+Player.prototype.moveLeft = function() {
+  if(this.x >= this.horizontalMove) {
+    this.x -= this.horizontalMove;
+  }
+}
+
+Player.prototype.moveRight = function() {
+  if(this.x + this.horizontalMove < canvas.width) {
+    this.x += this.horizontalMove;
+  }
+}
+
+Player.prototype.moveUp = function() {
+  if(this.y > this.verticalMove) {
+    this.y -= this.verticalMove;
+  } else {
+    this.x = this.startingXPosition;
+    this.y = this.startingYPosition;
+  }
+}
+
+Player.prototype.moveDown = function() {
+  if(this.y < this.startingYPosition) {
+    this.y += this.verticalMove;
+  }  
 }
 
 // Now instantiate your objects.
