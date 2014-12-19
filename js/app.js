@@ -1,3 +1,5 @@
+// TODO: refactor Enemy and Player classes to derive from a superclass
+// TODO: refactor out duplicated code (e.g. the speed and row selection functionality)
 // Enemies our player must avoid
 var Enemy = function() {
     // Variables applied to each of our instances go here,
@@ -6,6 +8,11 @@ var Enemy = function() {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
+    this.startingXPosition = -200;
+    this.speed = Math.floor((Math.random() * 500) + 100);
+
+    this.x = this.startingXPosition;
+    this.y = Math.floor(Math.random() * 3) *83 + 57;
 }
 
 // Update the enemy's position, required method for game
@@ -14,6 +21,12 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
+    if (this.x > canvas.width+200) {
+      this.y = Math.floor(Math.random() * 3) * 83 + 57;
+      this.speed = Math.floor((Math.random() * 300) + 100);
+      this.x = this.startingXPosition;
+    }
+    this.x += this.speed * dt;
 }
 
 // Draw the enemy on the screen, required method for game
@@ -90,7 +103,7 @@ Player.prototype.moveDown = function() {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-allEnemies = [];
+allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
 player = new Player();
 
 // This listens for key presses and sends the keys to your
