@@ -23,10 +23,14 @@ Enemy.prototype.update = function(dt) {
     // all computers.
     if (this.x > canvas.width+200) {
       this.y = Math.floor(Math.random() * 3) * 83 + 57;
-      this.speed = Math.floor((Math.random() * 300) + 100);
+      this.speed = Math.floor((Math.random() * 300)) + 100;
       this.x = this.startingXPosition;
     }
     this.x += this.speed * dt;
+}
+
+Enemy.prototype.collidedWith = function(player) {
+  // figure out if clipping regions intersect and if player is on the same row as an enemy
 }
 
 // Draw the enemy on the screen, required method for game
@@ -49,6 +53,14 @@ Player.prototype.update = function() {
   // TODO: implement this function, yo
   // as per the comment in engine.js; this method should focus purely
   // on updating the data/properties related to the object
+  for(var enemy in allEnemies) {
+  //TODO: create a clipping region for both enemy and player and see if they
+  //intersect
+    if(allEnemies[enemy].collidedWith(this)) {
+      this.reset();
+      break;
+    }
+  }
 }
 
 // Draw the player on the screen, required method for game
@@ -89,8 +101,7 @@ Player.prototype.moveUp = function() {
   if(this.y > this.verticalMove) {
     this.y -= this.verticalMove;
   } else {
-    this.x = this.startingXPosition;
-    this.y = this.startingYPosition;
+    this.reset();
   }
 }
 
@@ -98,6 +109,11 @@ Player.prototype.moveDown = function() {
   if(this.y < this.startingYPosition) {
     this.y += this.verticalMove;
   }  
+}
+
+Player.prototype.reset = function() {
+  this.x = this.startingXPosition;
+  this.y = this.startingYPosition;
 }
 
 // Now instantiate your objects.
