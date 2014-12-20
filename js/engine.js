@@ -92,7 +92,10 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-      if(!pauseGame) {
+      if(pauseGame) {
+        player.setCharacter(pauseScreen.getSelectedCharacter());
+      }
+      else {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
@@ -170,22 +173,7 @@ var Engine = (function(global) {
     }
 
     function renderPauseScreen() {
-      renderOverlay();
-
-      ctx.fillStyle = 'white';
-      ctx.font = "20pt Nunito, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("Press ESC to Resume Game", canvas.width/2, 100);
-    }
-
-    function renderOverlay() {
-      ctx.globalAlpha = 0.8;
-      ctx.fillStyle = 'black';
-      ctx.fillRect(10, 60, 485, 516);
-      ctx.globalAlpha = 1;
-      ctx.strokeStyle = 'white';
-      ctx.strokeRect(10, 60, 485, 516);
-      ctx.strokeRect(9, 59, 486, 517);
+      pauseScreen.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -209,7 +197,11 @@ var Engine = (function(global) {
         'images/enemy-bug-purple.png',
         'images/enemy-bug-yellow.png',
         'images/enemy-bug-green.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png'
     ]);
     Resources.onReady(init);
 

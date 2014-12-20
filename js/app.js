@@ -28,7 +28,6 @@ var Item = function(sprite, x, y, width, verticalBuffer) {
 
 Item.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-      
 }
 
 Item.prototype.collidingWith = function(item) {
@@ -121,6 +120,8 @@ var Player = function() {
     Item.call(this, 'images/char-boy.png', 202, 380, 36, 48)
     this.verticalMove = 83;
     this.horizontalMove = 101;
+    this.collideSound = new Audio('sounds/crunch.wav');
+    this.winSound = new Audio('sounds/water-splash.wav');
 }
 
 Player.inheritsFrom(Item);
@@ -130,6 +131,7 @@ Player.prototype.update = function() {
   // on updating the data/properties related to the object
   for(var enemy in allEnemies) {
     if(allEnemies[enemy].collidingWith(this)) {
+      this.collideSound.play();
       consecutiveSuccesses = 0;
       this.reset();
       break;
@@ -138,11 +140,6 @@ Player.prototype.update = function() {
 }
 
 Player.prototype.handleInput = function(input) {
-  if (input == 'esc') {
-    pauseGame = !pauseGame;
-  }
-
-  if(!pauseGame) {
     switch (input) {
       case 'left':
         this.moveLeft();
@@ -157,7 +154,6 @@ Player.prototype.handleInput = function(input) {
         this.moveDown();
         break;
     }
-  }
 }
 
 Player.prototype.moveLeft = function() {
@@ -177,6 +173,7 @@ Player.prototype.moveUp = function() {
     this.y -= this.verticalMove;
   } else {
     // the player has made it to the top row
+    this.winSound.play();
     consecutiveSuccesses++;
     this.reset();
   }
@@ -188,18 +185,92 @@ Player.prototype.moveDown = function() {
   }  
 }
 
+Player.prototype.setCharacter = function(sprite) {
+    this.sprite = sprite;
+}
+
+var PauseScreen = function() {
+  this.characters = [
+     'images/char-boy.png',
+     'images/char-cat-girl.png',
+     'images/char-horn-girl.png',
+     'images/char-pink-girl.png',
+     'images/char-princess-girl.png'
+  ];
+  this.characterSelection = 0;
+
+  this.renderOverlay = function() {
+      ctx.globalAlpha = 0.93;
+      ctx.fillStyle = 'black';
+      ctx.fillRect(10, 60, 485, 516);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = 'white';
+      ctx.strokeRect(10, 60, 485, 516);
+      ctx.strokeRect(9, 59, 486, 517);
+  }
+}
+
+PauseScreen.prototype.render = function() {
+    this.renderOverlay();
+
+    ctx.fillStyle = 'white';
+    ctx.font = "20pt Nunito, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Press ESC to Resume Game", canvas.width/2, 100);
+
+    for(var character in this.characters) {
+        ctx.drawImage(Resources.get(this.characters[character]), character*90+20, 200);
+    }
+
+    ctx.strokeStyle = 'red';
+    ctx.strokeRect(25+this.characterSelection*90, 240, 90, 121);
+
+    ctx.fillText("Select a character", canvas.width/2, 400);
+}
+
+PauseScreen.prototype.handleInput = function (input) {
+    switch (input) {
+      case 'left':
+        if(this.characterSelection > 0) {
+          this.characterSelection--;
+        }
+        break;
+      case 'right':
+        if(this.characterSelection < this.characters.length-1) {
+          this.characterSelection++;
+        }
+        break;
+    }
+}
+
+PauseScreen.prototype.getSelectedCharacter = function() {
+    return this.characters[this.characterSelection];
+}
+
+
 allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
 player = new Player();
+pauseScreen = new PauseScreen();
 
 // This listens for key presses and sends the keys to the Player.handleInput() method. 
 document.addEventListener('keyup', function(e) {
+    var escapeKey = 27;
+
     var allowedKeys = {
-        27: 'esc',
         37: 'left',
         38: 'up',
         39: 'right',
         40: 'down'
     };
 
-    player.handleInput(allowedKeys[e.keyCode]);
+    if (e.keyCode == escapeKey) {
+        pauseGame = !pauseGame;
+    }
+
+    if(pauseGame) {
+        pauseScreen.handleInput(allowedKeys[e.keyCode]);
+    }
+    else {
+        player.handleInput(allowedKeys[e.keyCode]);
+    }
 });
