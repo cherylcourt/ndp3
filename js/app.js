@@ -55,7 +55,7 @@ var Enemy = function() {
     }
 
     Item.call(this, 
-              'images/enemy-bug.png', 
+              'images/enemy-bug-red.png', 
               -102, 
               this.generateYPosition(), 
               86, 
@@ -85,8 +85,36 @@ Enemy.prototype.reset = function() {
     this.setSpeed();
 }
 
+/**
+ * Sets the speed of the enemy to a random value between 100 and 599 and
+ * then sets the enemy sprite based on the speed range
+ */
 Enemy.prototype.setSpeed = function () {
     this.speed= Math.floor((Math.random() * 500) + 100); 
+    this.setSpriteBySpeed();
+}
+
+/**
+ * Sets the sprite image based on the speed of the enemy
+ *
+ * Slowest (100-199) - blue
+ * Slower  (200-299) - purple
+ * Normal  (300-399) - red
+ * Faster  (400-499) - yellow
+ * Fastest (500-599) - green
+ */
+Enemy.prototype.setSpriteBySpeed = function () {
+    if(this.speed >= 500) {
+      this.sprite = 'images/enemy-bug-green.png';
+    } else if (this.speed >= 400) {
+      this.sprite = 'images/enemy-bug-yellow.png';
+    } else if (this.speed >= 300) {
+      this.sprite = 'images/enemy-bug-red.png';
+    } else if (this.speed >= 200) {
+      this.sprite = 'images/enemy-bug-purple.png';
+    } else if (this.speed >= 100) {
+      this.sprite = 'images/enemy-bug-blue.png';
+    }
 }
 
 var Player = function() {
