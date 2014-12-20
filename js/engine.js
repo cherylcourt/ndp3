@@ -166,10 +166,12 @@ var Engine = (function(global) {
     }
 
     function renderConsecutiveSuccesses() {
-        ctx.fillStyle = 'white';
-        ctx.font = "20pt Nunito, sans-serif";
-        ctx.textAlign = "right";
-        ctx.fillText(consecutiveSuccesses.toString(), canvas.width - 20, 90);
+        if(consecutiveSuccesses > 0) {
+            ctx.fillStyle = 'white';
+            ctx.font = "20pt Nunito, sans-serif";
+            ctx.textAlign = "right";
+            ctx.fillText(consecutiveSuccesses.toString(), canvas.width - 20, 90);
+        }
     }
 
     function renderPauseScreen() {
