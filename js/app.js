@@ -218,14 +218,14 @@ PauseScreen.prototype.render = function() {
     ctx.textAlign = "center";
     ctx.fillText("Press ESC to Resume Game", canvas.width/2, 100);
 
-    ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection*90+20, 200);
+    ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection*90+21, 200);
 
     for(var character in this.characters) {
-        ctx.drawImage(Resources.get(this.characters[character]), character*90+20, 200);
+        ctx.drawImage(Resources.get(this.characters[character]), character*90+21, 200);
     }
 
     ctx.globalAlpha = 0.9;
-    ctx.drawImage(Resources.get('images/selector-overlay.png'), this.characterSelection*90+20, 200);
+    ctx.drawImage(Resources.get('images/selector-overlay.png'), this.characterSelection*90+21, 200);
     ctx.globalAlpha = 1;
 
     ctx.fillText("Select a character", canvas.width/2, 400);
