@@ -189,6 +189,8 @@ var Engine = (function(global) {
      * all of these images are properly loaded our game will start.
      */
     Resources.load([
+        'images/Selector.png',
+        'images/selector-overlay.png',
         'images/stone-block.png',
         'images/water-block.png',
         'images/grass-block.png',
