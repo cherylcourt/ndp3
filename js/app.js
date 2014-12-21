@@ -24,6 +24,10 @@ var Item = function(sprite, x, y, width, verticalBuffer) {
     this.onRow = function() {
       return (this.y - this.rowAdjust)/83;
     }
+
+    this.onColumn = function() {
+      return(this.x / 101);
+    }
 }
 
 Item.prototype.render = function() {
@@ -41,7 +45,7 @@ Item.prototype.collidingWith = function(item) {
   }
 }
 
-Item.prototype.reset = function() {
+Item.prototype.resetPosition = function() {
   this.x = this.startingXPosition;
   this.y = this.startingYPosition;
 }
@@ -79,8 +83,7 @@ Enemy.prototype.update = function(dt) {
 }
 
 Enemy.prototype.reset = function() {
-    this.y = this.generateYPosition();
-    this.x = this.startingXPosition;
+    this.resetPosition();
     this.setSpeed();
 }
 
@@ -121,22 +124,52 @@ var Player = function() {
     this.verticalMove = 83;
     this.horizontalMove = 101;
     this.collideSound = new Audio('sounds/crunch.wav');
-    this.winSound = new Audio('sounds/water-splash.wav');
+    this.splashSound = new Audio('sounds/water-splash.wav');
+    this.resetWalkingArray();
 }
 
 Player.inheritsFrom(Item);
 
 Player.prototype.update = function() {
-  // as per the comment in engine.js; this method should focus purely
-  // on updating the data/properties related to the object
-  for(var enemy in allEnemies) {
-    if(allEnemies[enemy].collidingWith(this)) {
-      this.collideSound.play();
-      consecutiveSuccesses = 0;
-      this.reset();
-      break;
+    // as per the comment in engine.js; this method should focus purely
+    // on updating the data/properties related to the object
+    for(var enemy in allEnemies) {
+      if(allEnemies[enemy].collidingWith(this)) {
+        this.collideSound.play();
+        //TODO: move this functionality into the GameProperties object; beef up that object
+        if (GameProperties.currentGamePoints > GameProperties.bestGamePoints) {
+          GameProperties.bestGamePoints = GameProperties.currentGamePoints;
+          console.log('Assigning points: '+GameProperties.bestGamePoints.toString());
+        }
+        GameProperties.consecutiveSuccesses = 0;
+        GameProperties.currentGamePoints = 0;
+        this.reset();
+        break;
+      }
     }
-  }
+    if (!pauseScreen.colouredTileModeOn) {
+        this.resetWalkingArray();
+    }
+
+    if(this.walkedSuccess[0] && this.walkedSuccess[0].length == 5 &&
+       this.walkedSuccess[1] && this.walkedSuccess[1].length == 5 &&
+       this.walkedSuccess[2] && this.walkedSuccess[2].length == 5) {
+        GameProperties.currentGamePoints += 500;
+        player.resetWalkingArray();
+    }
+}
+
+Player.prototype.reset = function() {
+    this.resetWalkingArray();
+    console.log(this.walkedSuccess.toString());
+    this.resetPosition();
+}
+
+Player.prototype.resetWalkingArray = function() {
+    this.walkedSuccess = [];
+    for(var i = 0; i < 3; i++) {
+        this.walkedSuccess.push([]);
+    }
 }
 
 Player.prototype.handleInput = function(input) {
@@ -153,6 +186,14 @@ Player.prototype.handleInput = function(input) {
       case 'down':
         this.moveDown();
         break;
+    }
+    if(this.onRow() < 3) {
+      if(this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
+          this.walkedSuccess[this.onRow()].push(this.onColumn());
+      }
+    }
+    for(var i=0; i<this.walkedSuccess.length; i++) {
+      console.log('walked array['+i+']: '+this.walkedSuccess[i].toString());
     }
 }
 
@@ -173,9 +214,16 @@ Player.prototype.moveUp = function() {
     this.y -= this.verticalMove;
   } else {
     // the player has made it to the top row
-    this.winSound.play();
-    consecutiveSuccesses++;
-    this.reset();
+    this.splashSound.play();
+    //TODO: should probably move the tile mode attribute to GameProperties
+    if(pauseScreen.colouredTileModeOn) {
+      // lose 10 points for going in the water
+      GameProperties.currentGamePoints -= 10;
+    }
+    else {
+      GameProperties.consecutiveSuccesses++;
+    }
+    this.resetPosition();
   }
 }
 
@@ -198,6 +246,7 @@ var PauseScreen = function() {
      'images/char-princess-girl.png'
   ];
   this.characterSelection = 0;
+  this.colouredTileModeOn = false;
 
   this.renderOverlay = function() {
       ctx.globalAlpha = 0.93;
@@ -213,22 +262,38 @@ var PauseScreen = function() {
 PauseScreen.prototype.render = function() {
     this.renderOverlay();
 
+//TODO: refactor this out into smaller bits
     ctx.fillStyle = 'white';
     ctx.font = "20pt Nunito, sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("Press ESC to Resume Game", canvas.width/2, 100);
 
-    ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection*90+21, 200);
+    ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection*90+21, 120);
 
     for(var character in this.characters) {
-        ctx.drawImage(Resources.get(this.characters[character]), character*90+21, 200);
+        ctx.drawImage(Resources.get(this.characters[character]), character*90+21, 120);
     }
 
     ctx.globalAlpha = 0.9;
-    ctx.drawImage(Resources.get('images/selector-overlay.png'), this.characterSelection*90+21, 200);
+    ctx.drawImage(Resources.get('images/selector-overlay.png'), this.characterSelection*90+21, 120);
     ctx.globalAlpha = 1;
 
-    ctx.fillText("Select a character", canvas.width/2, 400);
+    ctx.fillStyle = 'grey';
+    ctx.fillText("Select a character", canvas.width/2, 320);
+    ctx.strokeStyle = 'white';
+    ctx.beginPath();
+    ctx.moveTo(18, 340);
+    ctx.lineTo(canvas.width-18, 340);
+    ctx.stroke();
+    ctx.fillText("Game Modes", canvas.width/2, 380);
+
+    ctx.fillStyle = 'white';
+    if(this.colouredTileModeOn) {
+        //highlight colouredTileMode
+        ctx.fillStyle = 'red';
+    }
+    ctx.textAlign = "left";
+    ctx.fillText("1: Coloured Tile Mode", 100, 420);
 }
 
 PauseScreen.prototype.handleInput = function (input) {
@@ -242,6 +307,9 @@ PauseScreen.prototype.handleInput = function (input) {
         if(this.characterSelection < this.characters.length-1) {
           this.characterSelection++;
         }
+        break;
+      case 'one':
+        this.colouredTileModeOn = !this.colouredTileModeOn;
         break;
     }
 }
@@ -259,18 +327,20 @@ pauseScreen = new PauseScreen();
 document.addEventListener('keyup', function(e) {
     var escapeKey = 27;
 
+    console.log(e.keyCode.toString());
     var allowedKeys = {
         37: 'left',
         38: 'up',
         39: 'right',
-        40: 'down'
+        40: 'down',
+        49: 'one'
     };
 
     if (e.keyCode == escapeKey) {
-        pauseGame = !pauseGame;
+        GameProperties.pauseGame = !GameProperties.pauseGame;
     }
 
-    if(pauseGame) {
+    if(GameProperties.pauseGame) {
         pauseScreen.handleInput(allowedKeys[e.keyCode]);
     }
     else {

@@ -25,6 +25,7 @@ var Engine = (function(global) {
         ctx = canvas.getContext('2d'),
         lastTime;
 
+
     canvas.width = 505;
     canvas.height = 606;
     canvas.id = 'canvas'
@@ -92,7 +93,7 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-      if(pauseGame) {
+      if(GameProperties.pauseGame) {
         player.setCharacter(pauseScreen.getSelectedCharacter());
       }
       else {
@@ -139,13 +140,23 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+                if(pauseScreen.colouredTileModeOn &&
+                   player.walkedSuccess[row-1] &&
+                   player.walkedSuccess[row-1].indexOf(col) >= 0) {
+                  //TODO: this should probably moved to the render method of something
+                  //else like the player class
+                    ctx.drawImage(Resources.get('images/stone-block-highlight.png'), col * 101, row * 83);
+                }
+                else {
+                    ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+                }
             }
         }
 
         renderEntities();
         renderConsecutiveSuccesses();
-        if(pauseGame) {
+        renderGamePoints();
+        if(GameProperties.pauseGame) {
           renderPauseScreen();
         }
     }
@@ -166,11 +177,26 @@ var Engine = (function(global) {
     }
 
     function renderConsecutiveSuccesses() {
-        if(consecutiveSuccesses > 0) {
+        if(GameProperties.consecutiveSuccesses > 0) {
             ctx.fillStyle = 'white';
             ctx.font = "20pt Nunito, sans-serif";
-            ctx.textAlign = "right";
-            ctx.fillText(consecutiveSuccesses.toString(), canvas.width - 20, 90);
+            ctx.textAlign = 'right';
+            ctx.fillText(GameProperties.consecutiveSuccesses.toString(), canvas.width - 15, 85);
+        }
+    }
+
+    function renderGamePoints() {
+        ctx.fillStyle = 'white';
+        ctx.font = "20pt Nunito, sans-serif";
+        if(pauseScreen.colouredTileModeOn && GameProperties.currentGamePoints) {
+            ctx.textAlign = 'left';
+            ctx.fillText(GameProperties.currentGamePoints.toString()+' pts', 15, 85);
+        }
+        if(pauseScreen.colouredTileModeOn && GameProperties.bestGamePoints &&
+           GameProperties.bestGamePoints > 0) {
+            ctx.textAlign = 'center';
+            ctx.fillText('High Score', canvas.width/2, 85);
+            ctx.fillText(GameProperties.bestGamePoints.toString()+' pts', canvas.width/2, 115);
         }
     }
 
@@ -194,6 +220,7 @@ var Engine = (function(global) {
         'images/Selector.png',
         'images/selector-overlay.png',
         'images/stone-block.png',
+        'images/stone-block-highlight.png',
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug-red.png',
@@ -214,7 +241,11 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
-    global.pauseGame = false;
-    global.success = false;
-    global.consecutiveSuccesses = 0;
+
+    window.GameProperties = {
+        pauseGame:  false,
+        currentGamePoints: 0,
+        bestGamePoints: 0,
+        consecutiveSuccesses: 0
+    };
 })(this);
