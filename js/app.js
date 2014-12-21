@@ -6,7 +6,7 @@ var Item = function(sprite, x, y, width, verticalBuffer) {
     this.startingYPosition = y;
     this.x = x; // Item's current x-position
     this.y = y; // Item's current y-position
-    this.halfVisibleWidth = width / 2; 
+    this.halfVisibleWidth = width / 2;
     this.rowAdjust = verticalBuffer;
 
     this.midPoint = function() {
@@ -37,11 +37,11 @@ Item.prototype.render = function() {
 Item.prototype.collidingWith = function(item) {
   if(this.onRow() == item.onRow()) {
     // the two items are on the same row; check to see if they are touching each other
-    return (item.visibleLeft() < this.visibleRight() && 
-            item.visibleLeft() > this.visibleLeft()) 
+    return (item.visibleLeft() < this.visibleRight() &&
+            item.visibleLeft() > this.visibleLeft())
            ||
-           (item.visibleRight() < this.visibleRight() && 
-            item.visibleRight() > this.visibleLeft()); 
+           (item.visibleRight() < this.visibleRight() &&
+            item.visibleRight() > this.visibleLeft());
   }
 }
 
@@ -57,11 +57,11 @@ var Enemy = function() {
       return Math.floor(Math.random() * 3) * 83 + this.verticalBuffer;
     }
 
-    Item.call(this, 
-              'images/enemy-bug-red.png', 
-              -102, 
-              this.generateYPosition(), 
-              86, 
+    Item.call(this,
+              'images/enemy-bug-red.png',
+              -102,
+              this.generateYPosition(),
+              86,
               this.verticalBuffer)
 
     this.setSpeed();
@@ -92,7 +92,7 @@ Enemy.prototype.reset = function() {
  * then sets the enemy sprite based on the speed range
  */
 Enemy.prototype.setSpeed = function () {
-    this.speed= Math.floor((Math.random() * 500) + 100); 
+    this.speed= Math.floor((Math.random() * 500) + 100);
     this.setSpriteBySpeed();
 }
 
@@ -147,6 +147,7 @@ Player.prototype.update = function() {
         break;
       }
     }
+
     if (!pauseScreen.colouredTileModeOn) {
         this.resetWalkingArray();
     }
@@ -230,7 +231,7 @@ Player.prototype.moveUp = function() {
 Player.prototype.moveDown = function() {
   if(this.y < this.startingYPosition) {
     this.y += this.verticalMove;
-  }  
+  }
 }
 
 Player.prototype.setCharacter = function(sprite) {
@@ -328,7 +329,7 @@ allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
 player = new Player();
 pauseScreen = new PauseScreen();
 
-// This listens for key presses and sends the keys to the Player.handleInput() method. 
+// This listens for key presses and sends the keys to the Player.handleInput() method.
 document.addEventListener('keyup', function(e) {
     var escapeKey = 27;
 
