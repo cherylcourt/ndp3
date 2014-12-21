@@ -264,43 +264,52 @@ var PauseScreen = function() {
 PauseScreen.prototype.render = function() {
     this.renderOverlay();
 
-//TODO: refactor this out into smaller bits
+    //TODO: refactor this out into smaller bits
+    //TODO: clean up and remove duplication here
     ctx.fillStyle = 'white';
     ctx.font = "20pt Nunito, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Press ESC to Resume Game", canvas.width/2, 100);
+    ctx.fillText("Press      to Resume Game", canvas.width/2, 555);
+    ctx.drawImage(Resources.get('images/esc-icon.png'), 152, 521);
 
-    ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection*90+21, 120);
+    ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection*90+21, 115);
 
     for(var character in this.characters) {
-        ctx.drawImage(Resources.get(this.characters[character]), character*90+21, 120);
+        ctx.drawImage(Resources.get(this.characters[character]), character * 90 + 21, 115);
     }
 
     ctx.globalAlpha = 0.9;
-    ctx.drawImage(Resources.get('images/selector-overlay.png'), this.characterSelection*90+21, 120);
+    ctx.drawImage(Resources.get('images/selector-overlay.png'), this.characterSelection*90+21, 115);
     ctx.globalAlpha = 1;
 
+    ctx.fillStyle = 'black';
+    ctx.font = "26pt Nunito, sans-serif";
+    ctx.fillText("SELECT A CHARACTER", canvas.width/2+3, 103);
+    ctx.fillText("GAME MODES", canvas.width/2+3, 333);
     ctx.fillStyle = 'grey';
-    ctx.fillText("Select a character", canvas.width/2, 320);
-    ctx.strokeStyle = 'white';
-    ctx.beginPath();
-    ctx.moveTo(18, 340);
-    ctx.lineTo(canvas.width-18, 340);
-    ctx.stroke();
-    ctx.fillText("Game Modes", canvas.width/2, 380);
-
-    ctx.fillStyle = 'white';
-    ctx.textAlign = "left";
-    var gameModeOneText = '1: Coloured Tile Mode - ';
+    ctx.fillText("SELECT A CHARACTER", canvas.width/2, 100);
+    ctx.fillText("GAME MODES", canvas.width/2, 330);
+    ctx.font = "20pt Nunito, sans-serif";
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'red';
+    var gameModeOneText = 'Coloured Tile Mode - ';
     if(this.colouredTileModeOn) {
         //highlight colouredTileMode
-        ctx.fillStyle = 'red';
+        ctx.fillStyle = 'green';
         gameModeOneText += 'ON';
     }
     else {
         gameModeOneText += 'OFF';
     }
-    ctx.fillText(gameModeOneText, 60, 420);
+
+    ctx.drawImage(Resources.get('images/1-icon.png'), 30, 337);
+    ctx.fillText(gameModeOneText, 100, 377);
+    //TODO: replace the following with the other modes (yet to be implemented)
+    //TODO: create a method to draw these, remove duplication
+    ctx.drawImage(Resources.get('images/2-icon.png'), 30, 397);
+    ctx.fillText(gameModeOneText, 100, 437);
+    ctx.drawImage(Resources.get('images/3-icon.png'), 30, 457);
+    ctx.fillText(gameModeOneText, 100, 497);
 }
 
 PauseScreen.prototype.handleInput = function (input) {

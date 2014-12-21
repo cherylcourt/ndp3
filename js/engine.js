@@ -232,7 +232,11 @@ var Engine = (function(global) {
         'images/char-cat-girl.png',
         'images/char-horn-girl.png',
         'images/char-pink-girl.png',
-        'images/char-princess-girl.png'
+        'images/char-princess-girl.png',
+        'images/1-icon.png',
+        'images/2-icon.png',
+        'images/3-icon.png',
+        'images/esc-icon.png'
     ]);
     Resources.onReady(init);
 
