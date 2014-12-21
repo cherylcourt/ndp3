@@ -249,7 +249,7 @@ var PauseScreen = function() {
   this.colouredTileModeOn = false;
 
   this.renderOverlay = function() {
-      ctx.globalAlpha = 0.93;
+      ctx.globalAlpha = 0.85;
       ctx.fillStyle = 'black';
       ctx.fillRect(10, 60, 485, 516);
       ctx.globalAlpha = 1;
@@ -288,12 +288,17 @@ PauseScreen.prototype.render = function() {
     ctx.fillText("Game Modes", canvas.width/2, 380);
 
     ctx.fillStyle = 'white';
+    ctx.textAlign = "left";
+    var gameModeOneText = '1: Coloured Tile Mode - ';
     if(this.colouredTileModeOn) {
         //highlight colouredTileMode
         ctx.fillStyle = 'red';
+        gameModeOneText += 'ON';
     }
-    ctx.textAlign = "left";
-    ctx.fillText("1: Coloured Tile Mode", 100, 420);
+    else {
+        gameModeOneText += 'OFF';
+    }
+    ctx.fillText(gameModeOneText, 60, 420);
 }
 
 PauseScreen.prototype.handleInput = function (input) {
