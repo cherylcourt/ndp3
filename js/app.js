@@ -155,7 +155,7 @@ Player.prototype.update = function() {
     if(this.walkedSuccess[0] && this.walkedSuccess[0].length == 5 &&
        this.walkedSuccess[1] && this.walkedSuccess[1].length == 5 &&
        this.walkedSuccess[2] && this.walkedSuccess[2].length == 5) {
-        GameProperties.currentGamePoints += 500;
+        GameProperties.currentGamePoints += 100;
         player.resetWalkingArray();
     }
 }
@@ -190,6 +190,7 @@ Player.prototype.handleInput = function(input) {
     }
     if(this.onRow() < 3) {
       if(this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
+          GameProperties.currentGamePoints += 10
           this.walkedSuccess[this.onRow()].push(this.onColumn());
       }
     }
@@ -219,7 +220,7 @@ Player.prototype.moveUp = function() {
     //TODO: should probably move the tile mode attribute to GameProperties
     if(pauseScreen.colouredTileModeOn) {
       // lose 10 points for going in the water
-      GameProperties.currentGamePoints -= 10;
+      GameProperties.currentGamePoints -= 30;
     }
     else {
       GameProperties.consecutiveSuccesses++;
