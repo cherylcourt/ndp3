@@ -218,7 +218,6 @@ var Engine = (function(global) {
      */
     Resources.load([
         'images/Selector.png',
-        'images/selector-overlay.png',
         'images/stone-block.png',
         'images/stone-block-highlight.png',
         'images/water-block.png',

@@ -278,10 +278,6 @@ PauseScreen.prototype.render = function() {
         ctx.drawImage(Resources.get(this.characters[character]), character * 90 + 21, 115);
     }
 
-    ctx.globalAlpha = 0.9;
-    ctx.drawImage(Resources.get('images/selector-overlay.png'), this.characterSelection*90+21, 115);
-    ctx.globalAlpha = 1;
-
     ctx.fillStyle = 'black';
     ctx.font = "26pt Nunito, sans-serif";
     ctx.fillText("SELECT A CHARACTER", canvas.width/2+3, 103);
