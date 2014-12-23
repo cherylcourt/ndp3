@@ -93,15 +93,15 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-      if(GameProperties.pauseGame) {
-        player.setCharacter(pauseScreen.getSelectedCharacterImageURL());
-      }
-      else {
-        allEnemies.forEach(function(enemy) {
-            enemy.update(dt);
-        });
-        player.update();
-      }
+        if(GameProperties.pauseGame) {
+            player.setCharacter(pauseScreen.getSelectedCharacterImageURL());
+        }
+        else {
+            allEnemies.forEach(function(enemy) {
+                enemy.update(dt);
+            });
+            player.update();
+        }
 
     }
 
@@ -141,10 +141,10 @@ var Engine = (function(global) {
                  * we're using them over and over.
                  */
                 if(pauseScreen.colouredTileModeOn &&
-                   player.walkedSuccess[row-1] &&
-                   player.walkedSuccess[row-1].indexOf(col) >= 0) {
-                  //TODO: this should probably moved to the render method of something
-                  //else like the player class
+                    player.walkedSuccess[row-1] &&
+                    player.walkedSuccess[row-1].indexOf(col) >= 0) {
+                    //TODO: this should probably moved to the render method of something
+                    //else like the player class
                     ctx.drawImage(Resources.get('images/stone-block-highlight.png'), col * 101, row * 83);
                 }
                 else {
@@ -157,7 +157,7 @@ var Engine = (function(global) {
         renderConsecutiveSuccesses();
         renderGamePoints();
         if(GameProperties.pauseGame) {
-          renderPauseScreen();
+            renderPauseScreen();
         }
     }
 
@@ -193,7 +193,7 @@ var Engine = (function(global) {
             ctx.fillText(GameProperties.currentGamePoints.toString()+' pts', 15, 85);
         }
         if(pauseScreen.colouredTileModeOn && GameProperties.bestGamePoints &&
-           GameProperties.bestGamePoints > 0) {
+            GameProperties.bestGamePoints > 0) {
             ctx.textAlign = 'center';
             ctx.fillText('High Score', canvas.width/2, 85);
             ctx.fillText(GameProperties.bestGamePoints.toString()+' pts', canvas.width/2, 115);
@@ -201,7 +201,7 @@ var Engine = (function(global) {
     }
 
     function renderPauseScreen() {
-      pauseScreen.render();
+        pauseScreen.render();
     }
 
     /* This function does nothing but it could have been a good place to
