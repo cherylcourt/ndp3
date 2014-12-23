@@ -94,7 +94,7 @@ var Engine = (function(global) {
      */
     function updateEntities(dt) {
       if(GameProperties.pauseGame) {
-        player.setCharacter(pauseScreen.getSelectedCharacter());
+        player.setCharacter(pauseScreen.getSelectedCharacterImageURL());
       }
       else {
         allEnemies.forEach(function(enemy) {

@@ -239,75 +239,130 @@ Player.prototype.setCharacter = function(sprite) {
     this.sprite = sprite;
 }
 
+/**
+ * Creates a new PauseScreen class.  This class contains all the information necessary to display the pause screen
+ * with all game option information visible to the user.
+ * @constructor
+ */
 var PauseScreen = function() {
-  this.characters = [
+    //TODO: consider passing this information into the class or putting it in GameProperties
+  this.characterImages = [
      'images/char-boy.png',
      'images/char-cat-girl.png',
      'images/char-horn-girl.png',
      'images/char-pink-girl.png',
      'images/char-princess-girl.png'
   ];
+
   this.characterSelection = 0;
   this.colouredTileModeOn = false;
-
-  this.renderOverlay = function() {
-      ctx.globalAlpha = 0.85;
-      ctx.fillStyle = 'black';
-      ctx.fillRect(10, 60, 485, 516);
-      ctx.globalAlpha = 1;
-      ctx.strokeStyle = 'white';
-      ctx.strokeRect(10, 60, 485, 516);
-      ctx.strokeRect(9, 59, 486, 517);
-  }
 }
 
+/**
+ * This is called to draw the pause screen on the canvas.
+ * The user is allowed to select a character and set which game modes they would like active.
+ * There is also a message letting the user know how to exit the pause screen.
+ */
 PauseScreen.prototype.render = function() {
     this.renderOverlay();
-
-    //TODO: refactor this out into smaller bits
-    //TODO: clean up and remove duplication here
-    ctx.fillStyle = 'white';
-    ctx.font = "20pt Nunito, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Press      to Resume Game", canvas.width/2, 555);
-    ctx.drawImage(Resources.get('images/esc-icon.png'), 152, 521);
-
-    ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection*90+21, 115);
-
-    for(var character in this.characters) {
-        ctx.drawImage(Resources.get(this.characters[character]), character * 90 + 21, 115);
-    }
-
-    ctx.fillStyle = 'black';
-    ctx.font = "26pt Nunito, sans-serif";
-    ctx.fillText("SELECT A CHARACTER", canvas.width/2+3, 103);
-    ctx.fillText("GAME MODES", canvas.width/2+3, 333);
-    ctx.fillStyle = 'grey';
-    ctx.fillText("SELECT A CHARACTER", canvas.width/2, 100);
-    ctx.fillText("GAME MODES", canvas.width/2, 330);
-    ctx.font = "20pt Nunito, sans-serif";
-    ctx.textAlign = 'left';
-    ctx.fillStyle = 'red';
-    var gameModeOneText = 'Coloured Tile Mode - ';
-    if(this.colouredTileModeOn) {
-        //highlight colouredTileMode
-        ctx.fillStyle = 'green';
-        gameModeOneText += 'ON';
-    }
-    else {
-        gameModeOneText += 'OFF';
-    }
-
-    ctx.drawImage(Resources.get('images/1-icon.png'), 30, 337);
-    ctx.fillText(gameModeOneText, 100, 377);
-    //TODO: replace the following with the other modes (yet to be implemented)
-    //TODO: create a method to draw these, remove duplication
-    ctx.drawImage(Resources.get('images/2-icon.png'), 30, 397);
-    ctx.fillText(gameModeOneText, 100, 437);
-    ctx.drawImage(Resources.get('images/3-icon.png'), 30, 457);
-    ctx.fillText(gameModeOneText, 100, 497);
+    this.drawTitle("SELECT A CHARACTER", canvas.width/2, 100);
+    this.drawCharacterSelect(21, 115, 90);
+    this.drawTitle("GAME MODES", canvas.width/2, 330);
+    this.drawGameModeText('images/1-icon.png', 'Coloured Tile', this.colouredTileModeOn, 337);
+    this.drawGameModeText('images/2-icon.png', 'Collectibles', false, 397);
+    this.drawGameModeText('images/3-icon.png', 'Alternate Directions', false, 457);
+    this.drawEscapeMessage(555);
 }
 
+/**
+ * This method draws the background and border of the pause screen so that the game options are more visible to
+ * the user.
+ */
+PauseScreen.prototype.renderOverlay = function() {
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = 'black';
+    ctx.fillRect(10, 60, 485, 516);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(10, 60, 485, 516);
+}
+
+/**
+ * Draw a grey centered title on the canvas with a black shadow.
+ * @param {string} title - the text of the title
+ * @param {number} x - the canvas x-coordinate of the middle of the title
+ * @param {number} y - the canvas y-coordinate of the title text
+ */
+PauseScreen.prototype.drawTitle = function(title, x, y) {
+    ctx.textAlign = "center";
+    ctx.font = "26pt Nunito, sans-serif";
+    ctx.fillStyle = 'black';
+    // put a shadow behind the title text
+    ctx.fillText(title, x+3, y+3);
+    ctx.fillStyle = 'grey';
+    ctx.fillText(title, x, y);
+}
+
+/**
+ * Draw the characters available for selection.
+ * @param {number} x - the canvas x-coordinate of the left-most character image
+ * @param {number} y - the canvas x-coordinate of all the character images
+ * @param {number} spacingInterval - the x-coordinate interval to use to evenly space the character images
+ */
+PauseScreen.prototype.drawCharacterSelect = function(x, y, spacingInterval) {
+    ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection * spacingInterval + x, y);
+
+    for(var characterIndex in this.characterImages) {
+        ctx.drawImage(Resources.get(this.characterImages[characterIndex]), characterIndex * spacingInterval + x, y);
+    }
+}
+
+/**
+ * Draw the available game mode text as well as whether the game mode is currently "ON" or "OFF"
+ * @param {string} image - the url of the image file
+ * @param {string} modeText - the text describing the mode to the user
+ * @param {boolean} isOn - true if this game mode is enabled; false if this game mode is disabled
+ * @param y - the canvas y-coordinate of where this text should be placed on the canvas
+ */
+PauseScreen.prototype.drawGameModeText = function(image, modeText, isOn, y) {
+    ctx.font = '20pt Nunito, sans-serif';
+    ctx.textAlign = 'left';
+
+    var gameModeText = modeText + ' - ';
+    if(isOn) {
+        // if the game mode is enabled then append ON and colour text green
+        ctx.fillStyle = 'green';
+        gameModeText += 'ON';
+    }
+    else {
+        // if the game mode is disabled then append OFF and colour text red
+        ctx.fillStyle = 'red';
+        gameModeText += 'OFF';
+    }
+
+    ctx.drawImage(Resources.get(image), 30, y);
+    ctx.fillText(gameModeText, 100, y+40);
+}
+
+/**
+ * Draws the message that lets the user know to press the escape key to exit the pause screen.
+ * @param {number} y - the canvas y-coordinate of where the message should be drawn
+ */
+PauseScreen.prototype.drawEscapeMessage = function(y) {
+    ctx.fillStyle = 'white';
+    ctx.font = '20pt Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Press      to Resume Game', canvas.width/2, y);
+    ctx.drawImage(Resources.get('images/esc-icon.png'), canvas.width/2 - 100, y-34);
+}
+
+/**
+ * This function is called by the event listener that is listening for keyUp events when the game is
+ * considered 'paused'.  Based on which key was pressed either a new character is selected or a game mode
+ * is enabled/disabled.
+ * @param {string} input - the string representation of the key that the user pressed
+ */
 PauseScreen.prototype.handleInput = function (input) {
     switch (input) {
       case 'left':
@@ -316,26 +371,32 @@ PauseScreen.prototype.handleInput = function (input) {
         }
         break;
       case 'right':
-        if(this.characterSelection < this.characters.length-1) {
+        if(this.characterSelection < this.characterImages.length-1) {
           this.characterSelection++;
         }
         break;
-      case 'one':
+        case 'one':
+          //TODO: move this atribute to GameProperties
         this.colouredTileModeOn = !this.colouredTileModeOn;
         break;
     }
 }
 
-PauseScreen.prototype.getSelectedCharacter = function() {
-    return this.characters[this.characterSelection];
+/**
+ * Gets the URL of the image for the selected character
+ * @returns {string} - image URL of the selected character
+ */
+PauseScreen.prototype.getSelectedCharacterImageURL = function() {
+    return this.characterImages[this.characterSelection];
 }
-
 
 allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
 player = new Player();
 pauseScreen = new PauseScreen();
 
-// This listens for key presses and sends the keys to the Player.handleInput() method.
+/**
+ * This listens for key presses and sends the keys to the Player.handleInput() method.
+ */
 document.addEventListener('keyup', function(e) {
     var escapeKey = 27;
 
