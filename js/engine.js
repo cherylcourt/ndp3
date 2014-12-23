@@ -246,7 +246,7 @@ var Engine = (function(global) {
     global.ctx = ctx;
 
     window.GameProperties = {
-        pauseGame:  false,
+        pauseGame:  true,
         currentGamePoints: 0,
         bestGamePoints: 0,
         consecutiveSuccesses: 0

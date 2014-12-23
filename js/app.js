@@ -211,13 +211,16 @@ Player.prototype.moveRight = function() {
     }
 }
 
+Player.prototype.hasReachedTopRow = function() {
+    return this.y <= this.verticalMove;
+}
+
 Player.prototype.moveUp = function() {
-    if(this.y > this.verticalMove) {
-        this.y -= this.verticalMove;
-    } else {
-        // the player has made it to the top row
+
+    if(this.hasReachedTopRow()) {
         this.splashSound.play();
         //TODO: should probably move the tile mode attribute to GameProperties
+        //TODO: GameProperties.playerReachedTopRow()
         if(pauseScreen.colouredTileModeOn) {
             // lose 10 points for going in the water
             GameProperties.currentGamePoints -= 30;
@@ -226,6 +229,8 @@ Player.prototype.moveUp = function() {
             GameProperties.consecutiveSuccesses++;
         }
         this.resetPosition();
+    } else {
+        this.y -= this.verticalMove;
     }
 }
 
@@ -353,8 +358,8 @@ PauseScreen.prototype.drawEscapeMessage = function(y) {
     ctx.fillStyle = 'white';
     ctx.font = '20pt Nunito, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Press      to Resume Game', canvas.width/2, y);
-    ctx.drawImage(Resources.get('images/esc-icon.png'), canvas.width/2 - 100, y-34);
+    ctx.fillText('Press      to play game', canvas.width/2, y);
+    ctx.drawImage(Resources.get('images/esc-icon.png'), canvas.width/2 - 72, y-34);
 }
 
 /**
