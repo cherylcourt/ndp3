@@ -4,7 +4,7 @@
  * render methods on your player and enemy objects (defined in your app.js).
  *
  * A game engine works by drawing the entire game screen over and over, kind of
- * like a flipbook you may have created as a kid. When your player moves across
+ * like a flip-book you may have created as a kid. When your player moves across
  * the screen, it may look like just that image/character is moving or being
  * drawn but that is not the case. What's really happening is the entire "scene"
  * is being drawn over and over, presenting the illusion of animation.
@@ -28,7 +28,7 @@ var Engine = (function(global) {
 
     canvas.width = 505;
     canvas.height = 606;
-    canvas.id = 'canvas'
+    canvas.id = 'canvas';
     doc.body.appendChild(canvas);
 
     /* This function serves as the kickoff point for the game loop itself
@@ -36,7 +36,7 @@ var Engine = (function(global) {
      */
     function main() {
         /* Get our time delta information which is required if your game
-         * requires smooth animation. Because everyone's computer processes
+         * requires smooth animation. Because every computer processes
          * instructions at different speeds we need a constant value that
          * would be the same for everyone (regardless of how fast their
          * computer is) - hurray time!
@@ -59,7 +59,7 @@ var Engine = (function(global) {
          * function again as soon as the browser is able to draw another frame.
          */
         win.requestAnimationFrame(main);
-    };
+    }
 
     /* This function does some initial setup that should only occur once,
      * particularly setting the lastTime variable that is required for the
@@ -108,7 +108,7 @@ var Engine = (function(global) {
     /* This function initially draws the "game level", it will then call
      * the renderEntities function. Remember, this function is called every
      * game tick (or loop of the game engine) because that's how games work -
-     * they are flipbooks creating the illusion of animation but in reality
+     * they are flip-books creating the illusion of animation but in reality
      * they are just drawing the entire screen over and over.
      */
     function render() {
@@ -209,7 +209,7 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        // noop
+        // no-op
     }
 
     /* Go ahead and load all of the images we know we're going to need to
