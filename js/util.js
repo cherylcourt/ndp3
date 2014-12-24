@@ -9,8 +9,8 @@
  * ANewSubClass = function() {}
  * ANewSubClass.inheritsFrom(ExistingClass)
  *
- * @param the superclass this class wants to inherit from
- * @return the subclass
+ * @param {object} parentClassOrObject - the superclass this class wants to inherit from
+ * @return {object} the subclass
  */
 Function.prototype.inheritsFrom = function( parentClassOrObject ){
 	if ( parentClassOrObject.constructor == Function )
