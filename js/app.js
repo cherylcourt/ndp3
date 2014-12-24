@@ -162,7 +162,6 @@ Player.prototype.update = function() {
 
 Player.prototype.reset = function() {
     this.resetWalkingArray();
-    console.log(this.walkedSuccess.toString());
     this.resetPosition();
 }
 
@@ -190,12 +189,9 @@ Player.prototype.handleInput = function(input) {
     }
     if(this.onRow() < 3) {
         if(this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
-            GameProperties.currentGamePoints += 10
+            GameProperties.currentGamePoints += 10;
             this.walkedSuccess[this.onRow()].push(this.onColumn());
         }
-    }
-    for(var i=0; i<this.walkedSuccess.length; i++) {
-        console.log('walked array['+i+']: '+this.walkedSuccess[i].toString());
     }
 }
 
@@ -383,6 +379,8 @@ PauseScreen.prototype.handleInput = function (input) {
         case 'one':
             //TODO: move this atribute to GameProperties
             this.colouredTileModeOn = !this.colouredTileModeOn;
+            GameProperties.currentGamePoints = 0;
+            player.resetWalkingArray();
             break;
     }
 }
@@ -404,7 +402,7 @@ pauseScreen = new PauseScreen();
  */
 document.addEventListener('keyup', function(e) {
     var escapeKey = 27;
-
+    //TODO: remove following log message
     console.log(e.keyCode.toString());
     var allowedKeys = {
         37: 'left',
