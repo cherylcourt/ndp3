@@ -1,3 +1,13 @@
+/**
+ * Base class that represents an item displayed on the screen that has a location and visible width and height
+ *
+ * @param {string} sprite - image file that is used to render on the canvas for this item
+ * @param {number} x - x coordinate position on the canvas of this item
+ * @param {number} y - y coordinate position on the canvas of this item
+ * @param {number} width - the visible width of the object (used to determine collision with other objects)
+ * @param {number} verticalBuffer - number of pixels from the top of the canvas
+ * @constructor
+ */
 var Item = function(sprite, x, y, width, verticalBuffer) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
