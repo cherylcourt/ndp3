@@ -152,7 +152,7 @@ var Engine = (function(global) {
                 }
             }
         }
-
+        //TODO: render collectibles
         renderEntities();
         renderConsecutiveSuccesses();
         renderGamePoints();
@@ -235,7 +235,11 @@ var Engine = (function(global) {
         'images/1-icon.png',
         'images/2-icon.png',
         'images/3-icon.png',
-        'images/esc-icon.png'
+        'images/esc-icon.png',
+        'images/Key.png',
+        'images/gem-blue.png',
+        'images/gem-orange.png',
+        'images/gem-green.png'
     ]);
     Resources.onReady(init);
 

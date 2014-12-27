@@ -1,17 +1,16 @@
 /**
  * Base class that represents an item displayed on the screen that has a location and visible width and height
  *
- * @param {string} sprite - image file that is used to render on the canvas for this item
  * @param {number} x - x coordinate position on the canvas of this item
  * @param {number} y - y coordinate position on the canvas of this item
  * @param {number} width - the visible width of the object (used to determine collision with other objects)
  * @param {number} verticalBuffer - number of pixels from the top of the canvas
  * @constructor
  */
-var Item = function(sprite, x, y, width, verticalBuffer) {
+var Item = function(x, y, width, verticalBuffer) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
-    this.sprite = sprite;
+    this.sprite = "images/Key.png";
     this.startingXPosition = x;
     this.startingYPosition = y;
     this.x = x; // Item's current x-position
@@ -100,12 +99,14 @@ Item.prototype.resetPosition = function() {
 var Enemy = function() {
     this.verticalBuffer = 57;
 
+    //TODO: move this to the prototype property
     this.generateYPosition = function() {
         return Math.floor(Math.random() * 3) * 83 + this.verticalBuffer;
     };
 
+    this.sprite = 'images/enemy-bug-red.png';
+
     Item.call(this,
-        'images/enemy-bug-red.png',
         -102,
         this.generateYPosition(),
         86,
@@ -167,7 +168,7 @@ Enemy.prototype.setSpriteBySpeed = function () {
 };
 
 var Player = function() {
-    Item.call(this, 'images/char-boy.png', 202, 380, 31, 48);
+    Item.call(this, 202, 380, 31, 48);
     this.verticalMove = 83;
     this.horizontalMove = 101;
     this.collideSound = new Audio('sounds/crunch.wav');
@@ -285,6 +286,31 @@ Player.prototype.moveDown = function() {
 
 Player.prototype.setCharacter = function(sprite) {
     this.sprite = sprite;
+};
+
+var Collectible = function(type, x, y) {
+    this.verticalBuffer = 57;
+    this.gemSprites = ['images/gem-blue.png', 'images/gem-orange.png', 'images/gem-green.png'];
+
+    Item.call(this,
+        x,
+        y,
+        95);
+
+    this.sprite = this.gemSprites[type];
+};
+
+Collectible.TYPE = Object.freeze({BLUE_GEM: 0, ORANGE_GEM: 1, GREEN_GEM: 2});
+
+Collectible.inheritsFrom(Item);
+
+//TODO: manage position of collectibles; might want a manager for all the things for rendering order
+var CollectibleManager = function () {
+    var Collectibles = [];
+};
+
+CollectibleManager.prototype.generatePosition = function() {
+    //TODO: manage position of collectibles (one item per tile, only on the stone tiles)
 };
 
 /**
