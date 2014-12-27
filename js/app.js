@@ -20,30 +20,67 @@ var Item = function(sprite, x, y, width, verticalBuffer) {
     this.rowAdjust = verticalBuffer;
 };
 
+/**
+ * @returns {number} the x-coordinate position on the canvas of the horizontal middle of this item
+ */
 Item.prototype.midPoint = function() {
     return this.x + 50.5;
 };
 
+/**
+ * @returns {number} - the x-coordinate position on the canvas of the left boundary of the visible part of this item
+ */
 Item.prototype.visibleLeft = function() {
     return this.midPoint() - this.halfVisibleWidth;
 };
 
+/**
+ * @returns {number} - the x-coordinate position on the canvas of the right boundary of the visible part of this item
+ */
 Item.prototype.visibleRight = function() {
     return this.midPoint() + this.halfVisibleWidth;
 };
 
+/**
+ *
+ * @returns {number} - the row that this item currently occupies; numbering starts at 0 from the top row
+ */
 Item.prototype.onRow = function() {
-    return (this.y - this.rowAdjust)/83;
+    var adjustedY = this.y - this.rowAdjust;
+    if (adjustedY != 0) {
+        return (this.y - this.rowAdjust) / 83;
+    }
+    else {
+        return 0;
+    }
 };
 
+/**
+ * @returns {number} - the column that this item currently occupies; numbering starts at 0 from left-most column
+ */
 Item.prototype.onColumn = function() {
-    return(this.x / 101);
+    if (this.x != 0) {
+        return (this.x / 101);
+    }
+    else {
+        return 0;
+    }
 };
 
+/**
+ * This is the function that is called by the game engine to render this item on the screen.
+ */
 Item.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+/**
+ * Check to see if this object "collides with" (or occupies the same space) as another object.  If the visible
+ * boundaries of both items on the x-axis overlap and they are both on the same row then these items have collided
+ * 
+ * @param {object} item - the other Item we are checking against
+ * @returns {boolean} - whether the two items visible boundaries overlap; true, if so, false otherwise
+ */
 Item.prototype.collidingWith = function(item) {
     if(this.onRow() == item.onRow()) {
         // the two items are on the same row; check to see if they are touching each other
