@@ -77,7 +77,7 @@ Item.prototype.render = function() {
 /**
  * Check to see if this object "collides with" (or occupies the same space) as another object.  If the visible
  * boundaries of both items on the x-axis overlap and they are both on the same row then these items have collided
- * 
+ *
  * @param {object} item - the other Item we are checking against
  * @returns {boolean} - whether the two items visible boundaries overlap; true, if so, false otherwise
  */
@@ -304,6 +304,8 @@ var PauseScreen = function() {
 
     this.characterSelection = 0;
     this.colouredTileModeOn = false;
+    this.collectibles = false;
+    this.alternateDirections = false;
 };
 
 /**
@@ -317,8 +319,8 @@ PauseScreen.prototype.render = function() {
     this.drawCharacterSelect(21, 115, 90);
     this.drawTitle("GAME MODES", canvas.width/2, 330);
     this.drawGameModeText('images/1-icon.png', 'Coloured Tile', this.colouredTileModeOn, 337);
-    this.drawGameModeText('images/2-icon.png', 'Collectibles', false, 397);
-    this.drawGameModeText('images/3-icon.png', 'Alternate Directions', false, 457);
+    this.drawGameModeText('images/2-icon.png', 'Collectibles', this.collectibles, 397);
+    this.drawGameModeText('images/3-icon.png', 'Alternate Directions', this.alternateDirections, 457);
     this.drawEscapeMessage(555);
 };
 
@@ -429,6 +431,14 @@ PauseScreen.prototype.handleInput = function (input) {
             GameProperties.currentGamePoints = 0;
             player.resetWalkingArray();
             break;
+        case 'two':
+            this.collectibles = !this.collectibles;
+            break;
+        case 'three':
+            this.alternateDirections = !this.alternateDirections;
+            // TODO: reset any enemies on the second enemy row to make sure we don't have two sets of enemies
+            // TODO: on that row going opposite directions (or just reset all enemies is probably easier)
+            break;
     }
 };
 
@@ -456,7 +466,9 @@ document.addEventListener('keyup', function(e) {
         38: 'up',
         39: 'right',
         40: 'down',
-        49: 'one'
+        49: 'one',
+        50: 'two',
+        51: 'three'
     };
 
     if (e.keyCode == escapeKey) {
