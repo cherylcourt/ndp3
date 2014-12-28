@@ -288,29 +288,24 @@ Player.prototype.setCharacter = function(sprite) {
     this.sprite = sprite;
 };
 
-var Collectible = function(type, x, y) {
+var Collectible = function() {
     this.verticalBuffer = 57;
-    this.gemSprites = ['images/gem-blue.png', 'images/gem-orange.png', 'images/gem-green.png'];
+    this.collectibleSprites = ['images/gem-blue.png', 'images/gem-orange.png', 'images/gem-green.png'];
 
     Item.call(this,
-        x,
-        y,
+        this.x,
+        this.y,
         95);
 
-    this.sprite = this.gemSprites[type];
+    this.reset();
 };
-
-Collectible.TYPE = Object.freeze({BLUE_GEM: 0, ORANGE_GEM: 1, GREEN_GEM: 2});
 
 Collectible.inheritsFrom(Item);
 
-//TODO: manage position of collectibles; might want a manager for all the things for rendering order
-var CollectibleManager = function () {
-    var Collectibles = [];
-};
-
-CollectibleManager.prototype.generatePosition = function() {
-    //TODO: manage position of collectibles (one item per tile, only on the stone tiles)
+Collectible.prototype.reset = function() {
+    this.sprite = this.collectibleSprites[Math.floor(Math.random() * this.collectibleSprites.length)];
+    this.x = Math.floor(Math.random() * 5) * 101;
+    this.y = -25 + (((Math.floor(Math.random() * 3) + 1) * 80));
 };
 
 /**
@@ -478,6 +473,7 @@ PauseScreen.prototype.getSelectedCharacterImageURL = function() {
 
 allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
 player = new Player();
+collectible = new Collectible();
 pauseScreen = new PauseScreen();
 
 /**
