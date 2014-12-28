@@ -101,11 +101,6 @@ Item.prototype.resetPosition = function() {
 var Enemy = function() {
     this.verticalBuffer = 57;
 
-    //TODO: move this to the prototype property
-    this.generateYPosition = function() {
-        return Math.floor(Math.random() * 3) * this.VISIBLE_VERTICAL_TILE_HEIGHT + this.verticalBuffer;
-    };
-
     Item.call(this,
         -102,
         this.generateYPosition(),
@@ -117,23 +112,50 @@ var Enemy = function() {
 
 Enemy.inheritsFrom(Item);
 
+Enemy.prototype.generateYPosition = function() {
+    return Math.floor(Math.random() * 3) * this.VISIBLE_VERTICAL_TILE_HEIGHT + this.verticalBuffer;
+};
+
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-    // if the enemy runs off the screen, reset the enemy so that it can
-    // appear on the screen again
-    if (this.x > canvas.width+102) {
-        this.reset();
+    if (this.isReversedEnemy()) {
+        if (this.x < -102) {
+            this.reset();
+        }
+        this.x -= this.speed * dt;
     }
-    // any movement is multiplied by the dt parameter to ensure the game
-    // runs at the same speed for all computers.
-    this.x += this.speed * dt;
+    else {
+        // if the enemy runs off the screen, reset the enemy so that it can
+        // appear on the screen again
+        //TODO: use canvas width
+        if (this.x > 607) {
+            this.reset();
+        }
+        // any movement is multiplied by the dt parameter to ensure the game
+        // runs at the same speed for all computers.
+        this.x += this.speed * dt;
+    }
+};
+
+Enemy.prototype.isReversedEnemy = function() {
+    return pauseScreen.alternateDirectionsOn && (this.onRow() == 1);
 };
 
 Enemy.prototype.reset = function() {
     this.resetPosition();
     this.setSpeed();
 };
+
+Enemy.prototype.resetPosition = function() {
+    this.y = this.generateYPosition();
+    if (this.isReversedEnemy()) {
+        this.x = 607;
+    }
+    else {
+        this.x = this.startingXPosition;
+    }
+}
 
 /**
  * Sets the speed of the enemy to a random value between 100 and 599 and
@@ -511,8 +533,9 @@ PauseScreen.prototype.getSelectedCharacterImageURL = function() {
     return this.characterImages[this.characterSelection];
 };
 
-allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
+
 pauseScreen = new PauseScreen();
+allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
 collectibleManager = new CollectibleManager(3, 5);
 player = new Player();
 
