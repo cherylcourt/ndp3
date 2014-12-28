@@ -166,6 +166,9 @@ var Engine = (function(global) {
      * on your enemy and player entities within app.js
      */
     function renderEntities() {
+
+        collectible.render();
+
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */

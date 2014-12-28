@@ -305,7 +305,7 @@ Collectible.inheritsFrom(Item);
 Collectible.prototype.reset = function() {
     this.sprite = this.collectibleSprites[Math.floor(Math.random() * this.collectibleSprites.length)];
     this.x = Math.floor(Math.random() * 5) * 101;
-    this.y = -25 + (((Math.floor(Math.random() * 3) + 1) * 80));
+    this.y = (((Math.floor(Math.random() * 3) + 1) * 83));
 };
 
 /**
