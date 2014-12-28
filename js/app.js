@@ -171,6 +171,7 @@ var Player = function() {
     Item.call(this, 202, 380, 31, 48);
     this.collideSound = new Audio('sounds/crunch.wav');
     this.splashSound = new Audio('sounds/water-splash.wav');
+    this.collectSound = new Audio('sounds/ding.mp3');
     this.resetWalkingArray();
 };
 
@@ -185,7 +186,7 @@ Player.prototype.update = function() {
         var collectible = collectibles[index];
 
         if(collectible.collidingWith(this)) {
-            console.log("Adding points: "+collectible.points);
+            this.collectSound.play();
             GameProperties.currentGamePoints += collectible.points;
             collectibleManager.resetCollectible();
         }
@@ -212,7 +213,7 @@ Player.prototype.update = function() {
     if(this.walkedSuccess[0] && this.walkedSuccess[0].length == 5 &&
         this.walkedSuccess[1] && this.walkedSuccess[1].length == 5 &&
         this.walkedSuccess[2] && this.walkedSuccess[2].length == 5) {
-        GameProperties.currentGamePoints += 100;
+        GameProperties.currentGamePoints += 200;
         player.resetWalkingArray();
     }
 };
@@ -316,9 +317,9 @@ var CollectibleManager = function(usableGameRows, usableGameColumns) {
     this.columns = usableGameColumns;
 
     this.availableCollectibles = [
-        {sprite: 'images/gem-blue.png', points:50},
-        {sprite: 'images/gem-orange.png', points: 100},
-        {sprite: 'images/gem-green.png', points: 150}
+        {sprite: 'images/gem-blue.png', points:25},
+        {sprite: 'images/gem-orange.png', points: 50},
+        {sprite: 'images/gem-green.png', points: 75}
     ];
 
     this.currentCollectibles = [];
