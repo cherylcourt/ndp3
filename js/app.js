@@ -187,6 +187,20 @@ Enemy.prototype.setSpriteBySpeed = function () {
     } else if (this.speed >= 100) {
         this.sprite = 'images/enemy-bug-blue.png';
     }
+    if(this.isReversedEnemy()) {
+        this.reverseEnemy();
+    }
+};
+
+Enemy.prototype.reverseEnemy = function() {
+
+    if (this.sprite.indexOf('-reversed') != -1) {
+        this.sprite = this.sprite.replace('-reversed', '');
+    }
+    else {
+        var splitSprite = this.sprite.split('.');
+        this.sprite = splitSprite[0]+"-reversed."+splitSprite[1];
+    }
 };
 
 var Player = function() {
@@ -519,8 +533,11 @@ PauseScreen.prototype.handleInput = function (input) {
             break;
         case 'three':
             this.alternateDirectionsOn = !this.alternateDirectionsOn;
-            // TODO: reset any enemies on the second enemy row to make sure we don't have two sets of enemies
-            // TODO: on that row going opposite directions (or just reset all enemies is probably easier)
+            allEnemies.forEach(function(enemy) {
+               if (enemy.onRow() == 1) {
+                   enemy.reverseEnemy();
+               }
+            });
             break;
     }
 };
