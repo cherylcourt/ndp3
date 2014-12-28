@@ -10,7 +10,9 @@
 var Item = function(x, y, width, verticalBuffer) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
-    this.sprite = "images/Key.png";
+    this.HORIZONTAL_TILE_WIDTH = 101;
+    this.VISIBLE_VERTICAL_TILE_HEIGHT = 83;
+    this.sprite = "images/blank-tile.png";
     this.startingXPosition = x;
     this.startingYPosition = y;
     this.x = x; // Item's current x-position
@@ -47,7 +49,7 @@ Item.prototype.visibleRight = function() {
 Item.prototype.onRow = function() {
     var adjustedY = this.y - this.rowAdjust;
     if (adjustedY != 0) {
-        return (this.y - this.rowAdjust) / 83;
+        return Math.floor((this.y - this.rowAdjust) / this.VISIBLE_VERTICAL_TILE_HEIGHT);
     }
     else {
         return 0;
@@ -59,7 +61,7 @@ Item.prototype.onRow = function() {
  */
 Item.prototype.onColumn = function() {
     if (this.x != 0) {
-        return (this.x / 101);
+        return Math.floor(this.x / this.HORIZONTAL_TILE_WIDTH);
     }
     else {
         return 0;
@@ -101,10 +103,8 @@ var Enemy = function() {
 
     //TODO: move this to the prototype property
     this.generateYPosition = function() {
-        return Math.floor(Math.random() * 3) * 83 + this.verticalBuffer;
+        return Math.floor(Math.random() * 3) * this.VISIBLE_VERTICAL_TILE_HEIGHT + this.verticalBuffer;
     };
-
-    this.sprite = 'images/enemy-bug-red.png';
 
     Item.call(this,
         -102,
@@ -169,8 +169,6 @@ Enemy.prototype.setSpriteBySpeed = function () {
 
 var Player = function() {
     Item.call(this, 202, 380, 31, 48);
-    this.verticalMove = 83;
-    this.horizontalMove = 101;
     this.collideSound = new Audio('sounds/crunch.wav');
     this.splashSound = new Audio('sounds/water-splash.wav');
     this.resetWalkingArray();
@@ -181,13 +179,24 @@ Player.inheritsFrom(Item);
 Player.prototype.update = function() {
     // as per the comment in engine.js; this method should focus purely
     // on updating the data/properties related to the object
+
+    var collectibles = collectibleManager.currentCollectibles;
+    for(var index in collectibles) {
+        var collectible = collectibles[index];
+
+        if(collectible.collidingWith(this)) {
+            console.log("Adding points: "+collectible.points);
+            GameProperties.currentGamePoints += collectible.points;
+            collectibleManager.resetCollectible();
+        }
+    }
+
     for(var enemy in allEnemies) {
         if(allEnemies[enemy].collidingWith(this)) {
             this.collideSound.play();
             //TODO: move this functionality into the GameProperties object; beef up that object
             if (GameProperties.currentGamePoints > GameProperties.bestGamePoints) {
                 GameProperties.bestGamePoints = GameProperties.currentGamePoints;
-                console.log('Assigning points: '+GameProperties.bestGamePoints.toString());
             }
             GameProperties.consecutiveSuccesses = 0;
             GameProperties.currentGamePoints = 0;
@@ -236,7 +245,7 @@ Player.prototype.handleInput = function(input) {
             break;
     }
     if(this.onRow() < 3) {
-        if(this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
+        if(pauseScreen.colouredTileModeOn && this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
             GameProperties.currentGamePoints += 10;
             this.walkedSuccess[this.onRow()].push(this.onColumn());
         }
@@ -244,19 +253,19 @@ Player.prototype.handleInput = function(input) {
 };
 
 Player.prototype.moveLeft = function() {
-    if(this.x >= this.horizontalMove) {
-        this.x -= this.horizontalMove;
+    if(this.x >= this.HORIZONTAL_TILE_WIDTH) {
+        this.x -= this.HORIZONTAL_TILE_WIDTH;
     }
 };
 
 Player.prototype.moveRight = function() {
-    if(this.x + this.horizontalMove < canvas.width) {
-        this.x += this.horizontalMove;
+    if(this.x + this.HORIZONTAL_TILE_WIDTH < canvas.width) {
+        this.x += this.HORIZONTAL_TILE_WIDTH;
     }
 };
 
 Player.prototype.hasReachedTopRow = function() {
-    return this.y <= this.verticalMove;
+    return this.y <= this.VISIBLE_VERTICAL_TILE_HEIGHT;
 };
 
 Player.prototype.moveUp = function() {
@@ -265,8 +274,8 @@ Player.prototype.moveUp = function() {
         this.splashSound.play();
         //TODO: should probably move the tile mode attribute to GameProperties
         //TODO: GameProperties.playerReachedTopRow()
-        if(pauseScreen.colouredTileModeOn) {
-            // lose 10 points for going in the water
+        if(pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) {
+            // lose 30 points for going in the water
             GameProperties.currentGamePoints -= 30;
         }
         else {
@@ -274,13 +283,13 @@ Player.prototype.moveUp = function() {
         }
         this.resetPosition();
     } else {
-        this.y -= this.verticalMove;
+        this.y -= this.VISIBLE_VERTICAL_TILE_HEIGHT;
     }
 };
 
 Player.prototype.moveDown = function() {
     if(this.y < this.startingYPosition) {
-        this.y += this.verticalMove;
+        this.y += this.VISIBLE_VERTICAL_TILE_HEIGHT;
     }
 };
 
@@ -288,24 +297,54 @@ Player.prototype.setCharacter = function(sprite) {
     this.sprite = sprite;
 };
 
-var Collectible = function() {
-    this.verticalBuffer = 57;
-    this.collectibleSprites = ['images/gem-blue.png', 'images/gem-orange.png', 'images/gem-green.png'];
+var Collectible = function(x, y, points, sprite) {
+    Item.call(this, x, y, 95, 57);
 
-    Item.call(this,
-        this.x,
-        this.y,
-        95);
-
-    this.reset();
+    this.sprite = sprite;
+    this.points = points;
 };
 
 Collectible.inheritsFrom(Item);
 
-Collectible.prototype.reset = function() {
-    this.sprite = this.collectibleSprites[Math.floor(Math.random() * this.collectibleSprites.length)];
-    this.x = Math.floor(Math.random() * 5) * 101;
-    this.y = (((Math.floor(Math.random() * 3) + 1) * 83));
+Collectible.prototype.toString = function() {
+    return "("+this.x.toString()+", "+this.y.toString()+") sprite: "+this.sprite + ", points: "+ this.points.toString()+" on row: "+this.onRow();
+}
+
+
+var CollectibleManager = function(usableGameRows, usableGameColumns) {
+    this.rows = usableGameRows;
+    this.columns = usableGameColumns;
+
+    this.availableCollectibles = [
+        {sprite: 'images/gem-blue.png', points:50},
+        {sprite: 'images/gem-orange.png', points: 100},
+        {sprite: 'images/gem-green.png', points: 150}
+    ];
+
+    this.currentCollectibles = [];
+
+    if (pauseScreen.collectiblesOn) {
+        this.resetCollectible();
+    }
+};
+
+CollectibleManager.prototype.resetCollectible = function() {
+    var collectibleSelection = Math.floor(Math.random() * this.availableCollectibles.length);
+    var sprite = this.availableCollectibles[collectibleSelection].sprite;
+    var points = this.availableCollectibles[collectibleSelection].points;
+    var x = Math.floor(Math.random() * this.columns) * 101;
+    var y = (Math.floor(Math.random() * this.rows) + 1) * 83;
+
+    if(this.currentCollectibles.length != 0) {
+       this.currentCollectibles.pop();
+    }
+    this.currentCollectibles.push(new Collectible(x, y, points, sprite));
+};
+
+CollectibleManager.prototype.update = function() {
+    if(pauseScreen.collectiblesOn && this.currentCollectibles.length == 0) {
+        this.resetCollectible();
+    }
 };
 
 /**
@@ -325,8 +364,8 @@ var PauseScreen = function() {
 
     this.characterSelection = 0;
     this.colouredTileModeOn = false;
-    this.collectibles = false;
-    this.alternateDirections = false;
+    this.collectiblesOn = false;
+    this.alternateDirectionsOn = false;
 };
 
 /**
@@ -340,8 +379,8 @@ PauseScreen.prototype.render = function() {
     this.drawCharacterSelect(21, 115, 90);
     this.drawTitle("GAME MODES", canvas.width/2, 330);
     this.drawGameModeText('images/1-icon.png', 'Coloured Tile', this.colouredTileModeOn, 337);
-    this.drawGameModeText('images/2-icon.png', 'Collectibles', this.collectibles, 397);
-    this.drawGameModeText('images/3-icon.png', 'Alternate Directions', this.alternateDirections, 457);
+    this.drawGameModeText('images/2-icon.png', 'Collectibles', this.collectiblesOn, 397);
+    this.drawGameModeText('images/3-icon.png', 'Alternate Directions', this.alternateDirectionsOn, 457);
     this.drawEscapeMessage(555);
 };
 
@@ -413,7 +452,7 @@ PauseScreen.prototype.drawGameModeText = function(image, modeText, isOn, y) {
     }
 
     ctx.drawImage(Resources.get(image), 30, y);
-    ctx.fillText(gameModeText, 100, y+40);
+    ctx.fillText(gameModeText, 100, y + 40);
 };
 
 /**
@@ -447,16 +486,16 @@ PauseScreen.prototype.handleInput = function (input) {
             }
             break;
         case 'one':
-            //TODO: move this atribute to GameProperties
+            //TODO: move this attribute to GameProperties
             this.colouredTileModeOn = !this.colouredTileModeOn;
             GameProperties.currentGamePoints = 0;
             player.resetWalkingArray();
             break;
         case 'two':
-            this.collectibles = !this.collectibles;
+            this.collectiblesOn = !this.collectiblesOn;
             break;
         case 'three':
-            this.alternateDirections = !this.alternateDirections;
+            this.alternateDirectionsOn = !this.alternateDirectionsOn;
             // TODO: reset any enemies on the second enemy row to make sure we don't have two sets of enemies
             // TODO: on that row going opposite directions (or just reset all enemies is probably easier)
             break;
@@ -472,17 +511,15 @@ PauseScreen.prototype.getSelectedCharacterImageURL = function() {
 };
 
 allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
-player = new Player();
-collectible = new Collectible();
 pauseScreen = new PauseScreen();
+collectibleManager = new CollectibleManager(3, 5);
+player = new Player();
 
 /**
  * This listens for key presses and sends the keys to the Player.handleInput() method.
  */
 document.addEventListener('keyup', function(e) {
     var escapeKey = 27;
-    //TODO: remove following log message
-    console.log(e.keyCode.toString());
     var allowedKeys = {
         37: 'left',
         38: 'up',

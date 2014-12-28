@@ -103,6 +103,10 @@ var Engine = (function(global) {
             player.update();
         }
 
+        if(pauseScreen.collectiblesOn) {
+            collectibleManager.update();
+        }
+
     }
 
     /* This function initially draws the "game level", it will then call
@@ -112,6 +116,12 @@ var Engine = (function(global) {
      * they are just drawing the entire screen over and over.
      */
     function render() {
+        /* Clear the canvas so that any images drawn at the top of the canvas
+         * are cleared before the next 'screen' is rendered so that they are
+         * no longer visible
+         */
+        ctx.clearRect ( 0 , 0 , canvas.width, canvas.height );
+
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
@@ -152,7 +162,7 @@ var Engine = (function(global) {
                 }
             }
         }
-        //TODO: render collectibles
+
         renderEntities();
         renderConsecutiveSuccesses();
         renderGamePoints();
@@ -167,7 +177,9 @@ var Engine = (function(global) {
      */
     function renderEntities() {
 
-        collectible.render();
+        collectibleManager.currentCollectibles.forEach(function(collectible) {
+            collectible.render();
+        });
 
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
@@ -191,11 +203,11 @@ var Engine = (function(global) {
     function renderGamePoints() {
         ctx.fillStyle = 'white';
         ctx.font = "20pt Nunito, sans-serif";
-        if(pauseScreen.colouredTileModeOn && GameProperties.currentGamePoints) {
+        if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && GameProperties.currentGamePoints) {
             ctx.textAlign = 'left';
             ctx.fillText(GameProperties.currentGamePoints.toString()+' pts', 15, 85);
         }
-        if(pauseScreen.colouredTileModeOn && GameProperties.bestGamePoints &&
+        if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && GameProperties.bestGamePoints &&
             GameProperties.bestGamePoints > 0) {
             ctx.textAlign = 'center';
             ctx.fillText('High Score', canvas.width/2, 85);
@@ -239,7 +251,7 @@ var Engine = (function(global) {
         'images/2-icon.png',
         'images/3-icon.png',
         'images/esc-icon.png',
-        'images/Key.png',
+        'images/blank-tile.png',
         'images/gem-blue.png',
         'images/gem-orange.png',
         'images/gem-green.png'
@@ -253,7 +265,7 @@ var Engine = (function(global) {
     global.ctx = ctx;
 
     window.GameProperties = {
-        pauseGame:  true,
+        pauseGame: true,
         currentGamePoints: 0,
         bestGamePoints: 0,
         consecutiveSuccesses: 0
