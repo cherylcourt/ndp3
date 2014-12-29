@@ -5,6 +5,20 @@ body {
     color: white;
 }
 
+a {
+    color: gray;
+    text-decoration: none;
+}
+
+a:hover {
+    color: darkgray;
+    text-decoration: underline;
+}
+
+hr {
+    width: 75%;
+}
+
 .top-buffer {
     padding-top: 50px;
 }
