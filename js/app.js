@@ -83,13 +83,18 @@ Item.prototype.render = function() {
  * @returns {boolean} - whether the two items visible boundaries overlap; true, if so, false otherwise
  */
 Item.prototype.collidingWith = function(item) {
-    if(this.onRow() == item.onRow()) {
-        // the two items are on the same row; check to see if they are touching each other
-        return (item.visibleLeft() < this.visibleRight() &&
-            item.visibleLeft() > this.visibleLeft())
-            ||
-            (item.visibleRight() < this.visibleRight() &&
-            item.visibleRight() > this.visibleLeft());
+    try {
+        if (this.onRow() == item.onRow()) {
+            // the two items are on the same row; check to see if they are touching each other
+            return (item.visibleLeft() < this.visibleRight() &&
+                item.visibleLeft() > this.visibleLeft())
+                ||
+                (item.visibleRight() < this.visibleRight() &&
+                item.visibleRight() > this.visibleLeft());
+        }
+    } catch(err) {
+        console.log(err.message);
+        return false;
     }
 };
 
@@ -128,8 +133,7 @@ Enemy.prototype.update = function(dt) {
     else {
         // if the enemy runs off the screen, reset the enemy so that it can
         // appear on the screen again
-        //TODO: use canvas width
-        if (this.x > 607) {
+        if (this.x > canvas.width + 2) {
             this.reset();
         }
         // any movement is multiplied by the dt parameter to ensure the game
@@ -150,12 +154,12 @@ Enemy.prototype.reset = function() {
 Enemy.prototype.resetPosition = function() {
     this.y = this.generateYPosition();
     if (this.isReversedEnemy()) {
-        this.x = 607;
+        this.x = canvas.width + 2;
     }
     else {
         this.x = this.startingXPosition;
     }
-}
+};
 
 /**
  * Sets the speed of the enemy to a random value between 100 and 599 and
@@ -379,6 +383,10 @@ CollectibleManager.prototype.update = function() {
     }
 };
 
+CollectibleManager.prototype.removeCollectibles = function () {
+    this.currentCollectibles = [];
+};
+
 /**
  * Creates a new PauseScreen class.  This class contains all the information necessary to display the pause screen
  * with all game option information visible to the user.
@@ -522,9 +530,15 @@ PauseScreen.prototype.handleInput = function (input) {
             this.colouredTileModeOn = !this.colouredTileModeOn;
             GameProperties.currentGamePoints = 0;
             player.resetWalkingArray();
+            player.reset();
             break;
         case 'two':
             this.collectiblesOn = !this.collectiblesOn;
+            GameProperties.currentGamePoints = 0;
+            if(!this.collectiblesOn) {
+                collectibleManager.removeCollectibles();
+            }
+            player.reset();
             break;
         case 'three':
             this.alternateDirectionsOn = !this.alternateDirectionsOn;
@@ -533,6 +547,8 @@ PauseScreen.prototype.handleInput = function (input) {
                    enemy.reverseEnemy();
                }
             });
+            GameProperties.currentGamePoints = 0;   
+            player.reset();
             break;
     }
 };

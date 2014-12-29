@@ -28,5 +28,5 @@ Function.prototype.inheritsFrom = function( parentClassOrObject ){
 		this.prototype.parent = parentClassOrObject;
 	}
 	return this;
-}
+};
 
