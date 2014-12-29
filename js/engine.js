@@ -194,7 +194,7 @@ var Engine = (function(global) {
     function renderConsecutiveSuccesses() {
         if(GameProperties.consecutiveSuccesses > 0) {
             ctx.fillStyle = 'white';
-            ctx.font = "20pt Nunito, sans-serif";
+            ctx.font = '20pt Nunito, sans-serif';
             ctx.textAlign = 'right';
             ctx.fillText(GameProperties.consecutiveSuccesses.toString(), canvas.width - 15, 85);
         }
@@ -202,7 +202,7 @@ var Engine = (function(global) {
 
     function renderGamePoints() {
         ctx.fillStyle = 'white';
-        ctx.font = "20pt Nunito, sans-serif";
+        ctx.font = '20pt Nunito, sans-serif';
         if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && GameProperties.currentGamePoints) {
             ctx.textAlign = 'left';
             ctx.fillText(GameProperties.currentGamePoints.toString()+' pts', 15, 85);

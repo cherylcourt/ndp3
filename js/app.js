@@ -12,7 +12,7 @@ var Item = function(x, y, width, verticalBuffer) {
     // a helper we've provided to easily load images
     this.HORIZONTAL_TILE_WIDTH = 101;
     this.VISIBLE_VERTICAL_TILE_HEIGHT = 83;
-    this.sprite = "images/blank-tile.png";
+    this.sprite = 'images/blank-tile.png';
     this.startingXPosition = x;
     this.startingYPosition = y;
     this.x = x; // Item's current x-position
@@ -199,7 +199,7 @@ Enemy.prototype.reverseEnemy = function() {
     }
     else {
         var splitSprite = this.sprite.split('.');
-        this.sprite = splitSprite[0]+"-reversed."+splitSprite[1];
+        this.sprite = splitSprite[0]+'-reversed.'+splitSprite[1];
     }
 };
 
@@ -343,11 +343,6 @@ var Collectible = function(x, y, points, sprite) {
 
 Collectible.inheritsFrom(Item);
 
-Collectible.prototype.toString = function() {
-    return "("+this.x.toString()+", "+this.y.toString()+") sprite: "+this.sprite + ", points: "+ this.points.toString()+" on row: "+this.onRow();
-}
-
-
 var CollectibleManager = function(usableGameRows, usableGameColumns) {
     this.rows = usableGameRows;
     this.columns = usableGameColumns;
@@ -412,9 +407,9 @@ var PauseScreen = function() {
  */
 PauseScreen.prototype.render = function() {
     this.renderOverlay();
-    this.drawTitle("SELECT A CHARACTER", canvas.width/2, 100);
+    this.drawTitle('SELECT A CHARACTER', canvas.width/2, 100);
     this.drawCharacterSelect(21, 115, 90);
-    this.drawTitle("GAME MODES", canvas.width/2, 330);
+    this.drawTitle('GAME MODES', canvas.width/2, 330);
     this.drawGameModeText('images/1-icon.png', 'Coloured Tile', this.colouredTileModeOn, 337);
     this.drawGameModeText('images/2-icon.png', 'Collectibles', this.collectiblesOn, 397);
     this.drawGameModeText('images/3-icon.png', 'Alternate Directions', this.alternateDirectionsOn, 457);
@@ -442,8 +437,8 @@ PauseScreen.prototype.renderOverlay = function() {
  * @param {number} y - the canvas y-coordinate of the title text
  */
 PauseScreen.prototype.drawTitle = function(title, x, y) {
-    ctx.textAlign = "center";
-    ctx.font = "26pt Nunito, sans-serif";
+    ctx.textAlign = 'center';
+    ctx.font = '26pt Nunito, sans-serif';
     ctx.fillStyle = 'black';
     // put a shadow behind the title text
     ctx.fillText(title, x+3, y+3);
