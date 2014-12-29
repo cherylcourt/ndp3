@@ -4,3 +4,7 @@ body {
     font-family: 'Nunito', sans-serif;
     color: white;
 }
+
+.top-buffer {
+    padding-top: 50px;
+}
