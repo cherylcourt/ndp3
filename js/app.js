@@ -547,7 +547,7 @@ PauseScreen.prototype.handleInput = function (input) {
                    enemy.reverseEnemy();
                }
             });
-            GameProperties.currentGamePoints = 0;   
+            GameProperties.currentGamePoints = 0;
             player.reset();
             break;
     }

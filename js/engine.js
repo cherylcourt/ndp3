@@ -116,11 +116,23 @@ var Engine = (function(global) {
      * they are just drawing the entire screen over and over.
      */
     function render() {
+
+        renderBackground();
+        renderEntities();
+        renderConsecutiveSuccesses();
+        renderGamePoints();
+
+        if(GameProperties.pauseGame) {
+            renderPauseScreen();
+        }
+    }
+
+    function renderBackground() {
         /* Clear the canvas so that any images drawn at the top of the canvas
          * are cleared before the next 'screen' is rendered so that they are
          * no longer visible
          */
-        ctx.clearRect ( 0 , 0 , canvas.width, canvas.height );
+        ctx.clearRect(0 , 0 , canvas.width, canvas.height);
 
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
@@ -162,13 +174,6 @@ var Engine = (function(global) {
                 }
             }
         }
-
-        renderEntities();
-        renderConsecutiveSuccesses();
-        renderGamePoints();
-        if(GameProperties.pauseGame) {
-            renderPauseScreen();
-        }
     }
 
     /* This function is called by the render function and is called on each game
@@ -191,6 +196,7 @@ var Engine = (function(global) {
         player.render();
     }
 
+    //TODO: create an Item or something similar for the following and call their render methods in Engine.render()
     function renderConsecutiveSuccesses() {
         if(GameProperties.consecutiveSuccesses > 0) {
             ctx.fillStyle = 'white';
