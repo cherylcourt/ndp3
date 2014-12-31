@@ -125,6 +125,12 @@ var Engine = (function(global) {
         if(GameProperties.pauseGame) {
             renderPauseScreen();
         }
+
+        if(GameProperties.showInfo) {
+            infoScreen.render();
+        }
+
+        infoItem.render();
     }
 
     function renderBackground() {
@@ -265,7 +271,8 @@ var Engine = (function(global) {
         'images/blank-tile.png',
         'images/gem-blue.png',
         'images/gem-orange.png',
-        'images/gem-green.png'
+        'images/gem-green.png',
+        'images/info.png'
     ]);
     Resources.onReady(init);
 
@@ -279,6 +286,7 @@ var Engine = (function(global) {
         pauseGame: true,
         currentGamePoints: 0,
         bestGamePoints: 0,
-        consecutiveSuccesses: 0
+        consecutiveSuccesses: 0,
+        showInfo: false
     };
 })(this);

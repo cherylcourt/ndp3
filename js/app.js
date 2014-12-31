@@ -7,12 +7,17 @@
  * @param {number} verticalBuffer - number of pixels from the top of the canvas
  * @constructor
  */
-var Item = function(x, y, width, verticalBuffer) {
+var Item = function(x, y, width, verticalBuffer, sprite) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.HORIZONTAL_TILE_WIDTH = 101;
     this.VISIBLE_VERTICAL_TILE_HEIGHT = 83;
-    this.sprite = 'images/blank-tile.png';
+    if(sprite) {
+        this.sprite = sprite;
+    }
+    else {
+        this.sprite = 'images/blank-tile.png';
+    }
     this.startingXPosition = x;
     this.startingYPosition = y;
     this.x = x; // Item's current x-position
@@ -387,6 +392,41 @@ CollectibleManager.prototype.removeCollectibles = function () {
     this.currentCollectibles = [];
 };
 
+var Screen = function() {
+   this.alpha = 1;
+};
+
+/**
+ * This method draws the background and border of the pause screen so that the game options are more visible to
+ * the user.
+ */
+Screen.prototype.renderOverlay = function() {
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = 'black';
+    ctx.fillRect(10, 60, 485, 516);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(10, 60, 485, 516);
+};
+
+/**
+ * Draw a grey centered title on the canvas with a black shadow.
+ * @param {string} title - the text of the title
+ * @param {number} x - the canvas x-coordinate of the middle of the title
+ * @param {number} y - the canvas y-coordinate of the title text
+ */
+Screen.prototype.drawTitle = function(title, x, y) {
+    ctx.textAlign = 'center';
+    ctx.font = '26pt Nunito, sans-serif';
+    ctx.fillStyle = 'black';
+    // put a shadow behind the title text
+    ctx.fillText(title, x+3, y+3);
+    ctx.fillStyle = 'grey';
+    ctx.fillText(title, x, y);
+};
+
+
 /**
  * Creates a new PauseScreen class.  This class contains all the information necessary to display the pause screen
  * with all game option information visible to the user.
@@ -402,11 +442,14 @@ var PauseScreen = function() {
         'images/char-princess-girl.png'
     ];
 
+    this.alpha = 0.85;
     this.characterSelection = 0;
     this.colouredTileModeOn = false;
     this.collectiblesOn = false;
     this.alternateDirectionsOn = false;
 };
+
+PauseScreen.inheritsFrom(Screen);
 
 /**
  * This is called to draw the pause screen on the canvas.
@@ -422,36 +465,6 @@ PauseScreen.prototype.render = function() {
     this.drawGameModeText('images/2-icon.png', 'Collectibles', this.collectiblesOn, 397);
     this.drawGameModeText('images/3-icon.png', 'Alternate Directions', this.alternateDirectionsOn, 457);
     this.drawEscapeMessage(555);
-};
-
-/**
- * This method draws the background and border of the pause screen so that the game options are more visible to
- * the user.
- */
-PauseScreen.prototype.renderOverlay = function() {
-    ctx.globalAlpha = 0.85;
-    ctx.fillStyle = 'black';
-    ctx.fillRect(10, 60, 485, 516);
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(10, 60, 485, 516);
-};
-
-/**
- * Draw a grey centered title on the canvas with a black shadow.
- * @param {string} title - the text of the title
- * @param {number} x - the canvas x-coordinate of the middle of the title
- * @param {number} y - the canvas y-coordinate of the title text
- */
-PauseScreen.prototype.drawTitle = function(title, x, y) {
-    ctx.textAlign = 'center';
-    ctx.font = '26pt Nunito, sans-serif';
-    ctx.fillStyle = 'black';
-    // put a shadow behind the title text
-    ctx.fillText(title, x+3, y+3);
-    ctx.fillStyle = 'grey';
-    ctx.fillText(title, x, y);
 };
 
 /**
@@ -561,11 +574,52 @@ PauseScreen.prototype.getSelectedCharacterImageURL = function() {
     return this.characterImages[this.characterSelection];
 };
 
+var InfoScreen = function() {
+    this.alpha = 1;
+};
+
+InfoScreen.inheritsFrom(Screen);
+
+InfoScreen.prototype.render = function() {
+    infoTextX = 30;
+    startingTextY = 100;
+    this.renderOverlay();
+
+    this.drawTitle("Basic Gameplay", canvas.width / 2, startingTextY);
+    this.infoText("See how many times you can reach the water", infoTextX, startingTextY + 25);
+    this.infoText("without being hit by a bug.", infoTextX, startingTextY + 50);
+
+    this.drawTitle("Coloured Tile Mode", canvas.width / 2, startingTextY + 100);
+    this.infoText("See how many tiles you can walk on without", infoTextX, startingTextY + 125);
+    this.infoText("being hit by a bug. Each tile is 10 pts, going in", infoTextX, startingTextY + 150);
+    this.infoText("the water is -30 pts and getting all tiles is 200.", infoTextX, startingTextY + 175);
+
+    this.drawTitle("Collectibles Mode", canvas.width / 2, startingTextY + 225);
+    this.infoText("See how many gems you can collect without", infoTextX, startingTextY + 250);
+    this.infoText("being hit by a bug.", infoTextX, startingTextY + 275);
+    this.infoText("Blue - 25pts, Orange - 50pts, Green - 75 pts", infoTextX, startingTextY + 300);
+
+    this.drawTitle("Alternate Directions Mode", canvas.width / 2, startingTextY + 350);
+    this.infoText("The second row of bugs move in the other", infoTextX, startingTextY + 375);
+    this.infoText("direction for an added challenge.", infoTextX, startingTextY + 400);
+
+    this.infoText("* Changing modes resets the game.", infoTextX, startingTextY + 450);
+}
+
+InfoScreen.prototype.infoText = function(text, x, y) {
+    ctx.fillStyle = 'white';
+    ctx.font = '15pt Nunito, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(text, x, y);
+};
 
 pauseScreen = new PauseScreen();
+infoScreen = new InfoScreen();
 allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
 collectibleManager = new CollectibleManager(3, 5);
 player = new Player();
+infoItem = new Item(423, 507, 64, 0, 'images/info.png');
+
 
 /**
  * This listens for key presses and sends the keys to the Player.handleInput() method.
@@ -591,5 +645,19 @@ document.addEventListener('keyup', function(e) {
     }
     else {
         player.handleInput(allowedKeys[e.keyCode]);
+    }
+});
+
+document.addEventListener('mousedown', function(e) {
+    // taken from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
+    // and http://www.homeandlearn.co.uk/JS/html5_canvas_mouse_events.html
+    var rect = canvas.getBoundingClientRect();
+    x = e.pageX - rect.left;
+    y = e.pageY - rect.top;
+
+    console.log(x.toString()+", "+ y.toString());
+
+    if(x > 423 && x < 487 && y > 507 && y < 571) {
+        GameProperties.showInfo = !GameProperties.showInfo;
     }
 });
