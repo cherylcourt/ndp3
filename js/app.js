@@ -228,12 +228,7 @@ Player.prototype.update = function() {
     for(var enemy in allEnemies) {
         if(allEnemies[enemy].collidingWith(this)) {
             this.collideSound.play();
-            //TODO: move this functionality into the GameProperties object; beef up that object
-            if (GameProperties.currentGamePoints > GameProperties.bestGamePoints) {
-                GameProperties.bestGamePoints = GameProperties.currentGamePoints;
-            }
-            GameProperties.consecutiveSuccesses = 0;
-            GameProperties.currentGamePoints = 0;
+            gameProperties.reset();
             this.reset();
             break;
         }
@@ -241,7 +236,7 @@ Player.prototype.update = function() {
 
     if(this.onRow() < 3) {
         if(pauseScreen.colouredTileModeOn && this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
-            GameProperties.currentGamePoints += 10;
+            gameProperties.currentGamePoints += 10;
             this.walkedSuccess[this.onRow()].push(this.onColumn());
         }
     }
@@ -252,7 +247,7 @@ Player.prototype.update = function() {
 
         if(collectible.collidingWith(this)) {
             this.collectSound.play();
-            GameProperties.currentGamePoints += collectible.points;
+            gameProperties.currentGamePoints += collectible.points;
             collectibleManager.resetCollectible();
         }
     }
@@ -264,7 +259,7 @@ Player.prototype.update = function() {
     if(this.walkedSuccess[0] && this.walkedSuccess[0].length == 5 &&
         this.walkedSuccess[1] && this.walkedSuccess[1].length == 5 &&
         this.walkedSuccess[2] && this.walkedSuccess[2].length == 5) {
-        GameProperties.currentGamePoints += 200;
+        gameProperties.currentGamePoints += 200;
         player.resetWalkingArray();
     }
 };
@@ -319,15 +314,7 @@ Player.prototype.moveUp = function() {
 
     if(this.hasReachedTopRow()) {
         this.splashSound.play();
-        //TODO: should probably move the tile mode attribute to GameProperties
-        //TODO: GameProperties.playerReachedTopRow()
-        if(pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) {
-            // lose 30 points for going in the water
-            GameProperties.currentGamePoints -= 30;
-        }
-        else {
-            GameProperties.consecutiveSuccesses++;
-        }
+        gameProperties.playerReachedTopRow();
         this.resetPosition();
     } else {
         this.y -= this.VISIBLE_VERTICAL_TILE_HEIGHT;
@@ -540,17 +527,14 @@ PauseScreen.prototype.handleInput = function (input) {
             }
             break;
         case 'one':
-            //TODO: move this attribute to GameProperties
             this.colouredTileModeOn = !this.colouredTileModeOn;
-            GameProperties.currentGamePoints = 0;
-            GameProperties.consecutiveSuccesses = 0;
+            gameProperties.reset();
             player.resetWalkingArray();
             player.reset();
             break;
         case 'two':
             this.collectiblesOn = !this.collectiblesOn;
-            GameProperties.currentGamePoints = 0;
-            GameProperties.consecutiveSuccesses = 0;
+            gameProperties.reset();
             if(!this.collectiblesOn) {
                 collectibleManager.removeCollectibles();
             }
@@ -563,8 +547,7 @@ PauseScreen.prototype.handleInput = function (input) {
                    enemy.reverseEnemy();
                }
             });
-            GameProperties.currentGamePoints = 0;
-            GameProperties.consecutiveSuccesses = 0;
+            gameProperties.reset();
             player.reset();
             break;
     }
@@ -617,6 +600,33 @@ InfoScreen.prototype.infoText = function(text, x, y) {
     ctx.fillText(text, x, y);
 };
 
+var GameProperties = function() {
+    this.pauseGame = true;
+    this.currentGamePoints = 0;
+    this.bestGamePoints = 0;
+    this.consecutiveSuccesses = 0;
+    this.showInfo = false;
+};
+
+GameProperties.prototype.reset = function() {
+    if (this.currentGamePoints > this.bestGamePoints) {
+        this.bestGamePoints = this.currentGamePoints;
+    }
+    this.consecutiveSuccesses = 0;
+    this.currentGamePoints = 0;
+};
+
+GameProperties.prototype.playerReachedTopRow = function() {
+    if(pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) {
+        // lose 30 points for going in the water
+        this.currentGamePoints -= 30;
+    }
+    else {
+        this.consecutiveSuccesses++;
+    }
+};
+
+gameProperties = new GameProperties();
 pauseScreen = new PauseScreen();
 infoScreen = new InfoScreen();
 allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
@@ -641,10 +651,10 @@ document.addEventListener('keyup', function(e) {
     };
 
     if (e.keyCode == escapeKey) {
-        GameProperties.pauseGame = !GameProperties.pauseGame;
+        gameProperties.pauseGame = !gameProperties.pauseGame;
     }
 
-    if(GameProperties.pauseGame) {
+    if(gameProperties.pauseGame) {
         pauseScreen.handleInput(allowedKeys[e.keyCode]);
     }
     else {
@@ -662,6 +672,6 @@ document.addEventListener('mousedown', function(e) {
     console.log(x.toString()+", "+ y.toString());
 
     if(x > 423 && x < 487 && y > 507 && y < 571) {
-        GameProperties.showInfo = !GameProperties.showInfo;
+        gameProperties.showInfo = !gameProperties.showInfo;
     }
 });

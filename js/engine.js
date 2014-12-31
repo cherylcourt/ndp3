@@ -93,7 +93,7 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        if(GameProperties.pauseGame) {
+        if(gameProperties.pauseGame) {
             player.setCharacter(pauseScreen.getSelectedCharacterImageURL());
         }
         else {
@@ -122,11 +122,11 @@ var Engine = (function(global) {
         renderConsecutiveSuccesses();
         renderGamePoints();
 
-        if(GameProperties.pauseGame) {
+        if(gameProperties.pauseGame) {
             renderPauseScreen();
         }
 
-        if(GameProperties.showInfo) {
+        if(gameProperties.showInfo) {
             infoScreen.render();
         }
 
@@ -204,29 +204,29 @@ var Engine = (function(global) {
 
     //TODO: create an Item or something similar for the following and call their render methods in Engine.render()
     function renderConsecutiveSuccesses() {
-        if(GameProperties.consecutiveSuccesses > 0) {
+        if(gameProperties.consecutiveSuccesses > 0) {
             ctx.fillStyle = 'white';
             ctx.font = '20pt Nunito, sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText(GameProperties.consecutiveSuccesses.toString(), canvas.width - 7, 40);
+            ctx.fillText(gameProperties.consecutiveSuccesses.toString(), canvas.width - 7, 40);
         }
     }
 
     function renderGamePoints() {
         ctx.fillStyle = 'white';
         ctx.font = '20pt Nunito, sans-serif';
-        if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && GameProperties.currentGamePoints) {
+        if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && gameProperties.currentGamePoints) {
             ctx.textAlign = 'left';
-            ctx.fillText(GameProperties.currentGamePoints.toString()+' pts', 7, 40);
+            ctx.fillText(gameProperties.currentGamePoints.toString()+' pts', 7, 40);
         }
 
-        if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && GameProperties.bestGamePoints &&
-            GameProperties.bestGamePoints > 0) {
+        if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && gameProperties.bestGamePoints &&
+            gameProperties.bestGamePoints > 0) {
             ctx.font = '10pt Nunito, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('High Score', canvas.width/2, 15);
             ctx.font = '20pt Nunito, sans-serif';
-            ctx.fillText(GameProperties.bestGamePoints.toString()+' pts', canvas.width/2, 40);
+            ctx.fillText(gameProperties.bestGamePoints.toString()+' pts', canvas.width/2, 40);
         }
     }
 
@@ -285,11 +285,4 @@ var Engine = (function(global) {
      */
     global.ctx = ctx;
 
-    window.GameProperties = {
-        pauseGame: true,
-        currentGamePoints: 0,
-        bestGamePoints: 0,
-        consecutiveSuccesses: 0,
-        showInfo: false
-    };
 })(this);
