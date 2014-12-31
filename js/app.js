@@ -171,7 +171,7 @@ Enemy.prototype.resetPosition = function() {
  * then sets the enemy sprite based on the speed range
  */
 Enemy.prototype.setSpeed = function () {
-    this.speed= Math.floor((Math.random() * 500) + 100);
+    this.speed= Math.floor((Math.random() * 300)+100);
     this.setSpriteBySpeed();
 };
 
@@ -185,13 +185,13 @@ Enemy.prototype.setSpeed = function () {
  * Fastest (500-599) - green
  */
 Enemy.prototype.setSpriteBySpeed = function () {
-    if(this.speed >= 500) {
+    if(this.speed >= 300) {
         this.sprite = 'images/enemy-bug-green.png';
-    } else if (this.speed >= 400) {
+    } else if (this.speed >= 250) {
         this.sprite = 'images/enemy-bug-yellow.png';
-    } else if (this.speed >= 300) {
-        this.sprite = 'images/enemy-bug-red.png';
     } else if (this.speed >= 200) {
+        this.sprite = 'images/enemy-bug-red.png';
+    } else if (this.speed >= 150) {
         this.sprite = 'images/enemy-bug-purple.png';
     } else if (this.speed >= 100) {
         this.sprite = 'images/enemy-bug-blue.png';
