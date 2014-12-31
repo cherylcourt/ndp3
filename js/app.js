@@ -583,8 +583,8 @@ InfoScreen.prototype.render = function() {
 
     this.drawTitle("Collectibles Mode", canvas.width / 2, startingTextY + 225);
     this.infoText("See how many gems you can collect without", infoTextX, startingTextY + 250);
-    this.infoText("being hit by a bug.", infoTextX, startingTextY + 275);
-    this.infoText("Blue - 25pts, Orange - 50pts, Green - 75 pts", infoTextX, startingTextY + 300);
+    this.infoText("being hit by a bug. Going in the water is -30", infoTextX, startingTextY + 275);
+    this.infoText("pts, Blue: 25pts, Orange: 50pts, Green: 75 pts", infoTextX, startingTextY + 300);
 
     this.drawTitle("Alternate Directions Mode", canvas.width / 2, startingTextY + 350);
     this.infoText("The second row of bugs move in the other", infoTextX, startingTextY + 375);
