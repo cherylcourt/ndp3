@@ -208,7 +208,7 @@ var Engine = (function(global) {
             ctx.fillStyle = 'white';
             ctx.font = '20pt Nunito, sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText(GameProperties.consecutiveSuccesses.toString(), canvas.width - 15, 85);
+            ctx.fillText(GameProperties.consecutiveSuccesses.toString(), canvas.width - 7, 40);
         }
     }
 
@@ -217,13 +217,16 @@ var Engine = (function(global) {
         ctx.font = '20pt Nunito, sans-serif';
         if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && GameProperties.currentGamePoints) {
             ctx.textAlign = 'left';
-            ctx.fillText(GameProperties.currentGamePoints.toString()+' pts', 15, 85);
+            ctx.fillText(GameProperties.currentGamePoints.toString()+' pts', 7, 40);
         }
+
         if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && GameProperties.bestGamePoints &&
             GameProperties.bestGamePoints > 0) {
+            ctx.font = '10pt Nunito, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('High Score', canvas.width/2, 85);
-            ctx.fillText(GameProperties.bestGamePoints.toString()+' pts', canvas.width/2, 115);
+            ctx.fillText('High Score', canvas.width/2, 15);
+            ctx.font = '20pt Nunito, sans-serif';
+            ctx.fillText(GameProperties.bestGamePoints.toString()+' pts', canvas.width/2, 40);
         }
     }
 

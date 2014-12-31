@@ -542,12 +542,14 @@ PauseScreen.prototype.handleInput = function (input) {
             //TODO: move this attribute to GameProperties
             this.colouredTileModeOn = !this.colouredTileModeOn;
             GameProperties.currentGamePoints = 0;
+            GameProperties.consecutiveSuccesses = 0;
             player.resetWalkingArray();
             player.reset();
             break;
         case 'two':
             this.collectiblesOn = !this.collectiblesOn;
             GameProperties.currentGamePoints = 0;
+            GameProperties.consecutiveSuccesses = 0;
             if(!this.collectiblesOn) {
                 collectibleManager.removeCollectibles();
             }
@@ -561,6 +563,7 @@ PauseScreen.prototype.handleInput = function (input) {
                }
             });
             GameProperties.currentGamePoints = 0;
+            GameProperties.consecutiveSuccesses = 0;
             player.reset();
             break;
     }
