@@ -101,6 +101,7 @@ var Engine = (function(global) {
                 enemy.update(dt);
             });
             player.update();
+            gameProperties.update();
         }
 
         if(pauseScreen.collectiblesOn) {
@@ -131,6 +132,7 @@ var Engine = (function(global) {
         }
 
         infoItem.render();
+        gameProperties.render();
     }
 
     function renderBackground() {

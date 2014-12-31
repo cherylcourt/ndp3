@@ -236,7 +236,7 @@ Player.prototype.update = function() {
 
     if(this.onRow() < 3) {
         if(pauseScreen.colouredTileModeOn && this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
-            gameProperties.currentGamePoints += 10;
+            gameProperties.addPoints(this.onRow(), this.onColumn(), 10);
             this.walkedSuccess[this.onRow()].push(this.onColumn());
         }
     }
@@ -247,7 +247,7 @@ Player.prototype.update = function() {
 
         if(collectible.collidingWith(this)) {
             this.collectSound.play();
-            gameProperties.currentGamePoints += collectible.points;
+            gameProperties.addPoints(this.onRow(), this.onColumn(), collectible.points);
             collectibleManager.resetCollectible();
         }
     }
@@ -259,7 +259,7 @@ Player.prototype.update = function() {
     if(this.walkedSuccess[0] && this.walkedSuccess[0].length == 5 &&
         this.walkedSuccess[1] && this.walkedSuccess[1].length == 5 &&
         this.walkedSuccess[2] && this.walkedSuccess[2].length == 5) {
-        gameProperties.currentGamePoints += 200;
+        gameProperties.addPoints(this.onRow(), this.onColumn(), 200);
         player.resetWalkingArray();
     }
 };
@@ -314,7 +314,7 @@ Player.prototype.moveUp = function() {
 
     if(this.hasReachedTopRow()) {
         this.splashSound.play();
-        gameProperties.playerReachedTopRow();
+        gameProperties.playerReachedTopRow(this.onColumn());
         this.resetPosition();
     } else {
         this.y -= this.VISIBLE_VERTICAL_TILE_HEIGHT;
@@ -600,12 +600,50 @@ InfoScreen.prototype.infoText = function(text, x, y) {
     ctx.fillText(text, x, y);
 };
 
+var ShowPoints = function(row, column, points) {
+    this.row = row;
+    this.column = column;
+    this.points = points;
+    this.counter = 100;
+};
+
+ShowPoints.prototype.render = function(offset) {
+    ctx.font = '25pt Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    var pointsText = this.points.toString();
+
+    if (this.points < 0) {
+        ctx.fillStyle = 'red';
+    }
+    else {
+        pointsText = '+' + pointsText;
+        ctx.fillStyle = 'green';
+    }
+    if (this.counter > 0) {
+        ctx.globalAlpha = this.counter/100;
+    }
+    else {
+        ctx.globalAlpha = 0;
+    }
+
+    if(offset) {
+        ctx.fillText(pointsText, this.column * 101 + 50.5 - offset, this.row * 130 + this.counter - offset);
+    }
+    else {
+        ctx.fillText(pointsText, this.column * 101 + 50.5, this.row * 130 + this.counter);
+    }
+
+    ctx.globalAlpha = 1;
+    this.counter--;
+};
+
 var GameProperties = function() {
     this.pauseGame = true;
     this.currentGamePoints = 0;
     this.bestGamePoints = 0;
     this.consecutiveSuccesses = 0;
     this.showInfo = false;
+    this.showPoints = [];
 };
 
 GameProperties.prototype.reset = function() {
@@ -616,14 +654,48 @@ GameProperties.prototype.reset = function() {
     this.currentGamePoints = 0;
 };
 
-GameProperties.prototype.playerReachedTopRow = function() {
+GameProperties.prototype.playerReachedTopRow = function(column) {
     if(pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) {
         // lose 30 points for going in the water
-        this.currentGamePoints -= 30;
+        this.addPoints(0, column, -30);
     }
     else {
         this.consecutiveSuccesses++;
     }
+};
+
+GameProperties.prototype.addPoints = function(row, column, points) {
+    this.currentGamePoints += points;
+    this.showPoints.push(new ShowPoints(row, column, points));
+};
+
+GameProperties.prototype.update = function() {
+    var i = this.showPoints.length - 1;
+    for(i; i >= 0; i--) {
+        if(this.showPoints.counter <= 0) {
+            this.showPoints.splice(i, 1);
+        }
+    }
+};
+
+GameProperties.prototype.render = function() {
+    var offset = 30,
+        lastColumn,
+        lastRow;
+
+    this.showPoints.forEach(function(showPoint) {
+        if(lastRow == showPoint.row && lastColumn == showPoint.column) {
+            showPoint.render(offset);
+            offset += 30;
+        }
+        else {
+            offset = 30;
+            showPoint.render();
+        }
+        lastColumn = showPoint.column;
+        lastRow = showPoint.row;
+
+    })
 };
 
 gameProperties = new GameProperties();
