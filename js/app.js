@@ -225,18 +225,6 @@ Player.inheritsFrom(Item);
 Player.prototype.update = function() {
     // as per the comment in engine.js; this method should focus purely
     // on updating the data/properties related to the object
-
-    var collectibles = collectibleManager.currentCollectibles;
-    for(var index in collectibles) {
-        var collectible = collectibles[index];
-
-        if(collectible.collidingWith(this)) {
-            this.collectSound.play();
-            GameProperties.currentGamePoints += collectible.points;
-            collectibleManager.resetCollectible();
-        }
-    }
-
     for(var enemy in allEnemies) {
         if(allEnemies[enemy].collidingWith(this)) {
             this.collideSound.play();
@@ -248,6 +236,24 @@ Player.prototype.update = function() {
             GameProperties.currentGamePoints = 0;
             this.reset();
             break;
+        }
+    }
+
+    if(this.onRow() < 3) {
+        if(pauseScreen.colouredTileModeOn && this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
+            GameProperties.currentGamePoints += 10;
+            this.walkedSuccess[this.onRow()].push(this.onColumn());
+        }
+    }
+
+    var collectibles = collectibleManager.currentCollectibles;
+    for(var index in collectibles) {
+        var collectible = collectibles[index];
+
+        if(collectible.collidingWith(this)) {
+            this.collectSound.play();
+            GameProperties.currentGamePoints += collectible.points;
+            collectibleManager.resetCollectible();
         }
     }
 
@@ -290,12 +296,7 @@ Player.prototype.handleInput = function(input) {
             this.moveDown();
             break;
     }
-    if(this.onRow() < 3) {
-        if(pauseScreen.colouredTileModeOn && this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
-            GameProperties.currentGamePoints += 10;
-            this.walkedSuccess[this.onRow()].push(this.onColumn());
-        }
-    }
+
 };
 
 Player.prototype.moveLeft = function() {
