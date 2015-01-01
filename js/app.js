@@ -704,6 +704,12 @@ ShowPoints.prototype.render = function(offset) {
     this.counter--;
 };
 
+/**
+ * This class keeps track of game points and whether the game is paused or the user wants to see the
+ * information screen.
+ * 
+ * @constructor
+ */
 var GameProperties = function() {
     this.pauseGame = true;
     this.currentGamePoints = 0;
@@ -713,6 +719,10 @@ var GameProperties = function() {
     this.showPoints = [];
 };
 
+/**
+ * This method should be called when the game is reset.  All points are reset to 0 and if the current game points
+ * accrued is greater than the best score, then the best score is set to the current game points before being reset.
+ */
 GameProperties.prototype.reset = function() {
     if (this.currentGamePoints > this.bestGamePoints) {
         this.bestGamePoints = this.currentGamePoints;
@@ -721,21 +731,40 @@ GameProperties.prototype.reset = function() {
     this.currentGamePoints = 0;
 };
 
+/**
+ * This method should be called when the player reaches the top row so that the proper amount of points/successes
+ * can be added to the total
+ *
+ * @param {number} column - the column where the player reached the top row
+ */
 GameProperties.prototype.playerReachedTopRow = function(column) {
     if(pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) {
         // lose 30 points for going in the water
         this.addPoints(0, column, -30);
     }
     else {
+        // if the game does not have coloured tile or collectibles mode on, then simply add to the number
+        // of consecutive times the player has reached the water without being hit by a bug
         this.consecutiveSuccesses++;
     }
 };
 
+/**
+ * This adds positive or negative game points to the current game points total and creates an object that
+ * renders this amount on the canvas to show the player.
+ *
+ * @param {number} row - the row where the points were gained/lost
+ * @param {number} column - the column where the points were gained/lost
+ * @param {number} points - the points that were gained/lost; this value can be positive (gained) or negative (lost)
+ */
 GameProperties.prototype.addPoints = function(row, column, points) {
     this.currentGamePoints += points;
     this.showPoints.push(new ShowPoints(row, column, points));
 };
 
+/**
+ * Removes the added/subtracted game points from being shown when their counters reach 0.
+ */
 GameProperties.prototype.update = function() {
     var i = this.showPoints.length - 1;
     for(; i >= 0; i--) {
@@ -745,6 +774,9 @@ GameProperties.prototype.update = function() {
     }
 };
 
+/**
+ * When called by the game engine this renders all game points on the canvas that are either added or subtracted.
+ */
 GameProperties.prototype.render = function() {
     var offset = 30,
         lastColumn,
@@ -777,7 +809,8 @@ infoItem = new RenderableItem(423, 507, 'images/info.png');
 
 
 /**
- * This listens for key presses and sends the keys to the Player.handleInput() method.
+ * This listens for key presses and sends the keys to the Player.handleInput() method if the game is not paused
+ * or the pauseScreen.handleInput method if the game is paused.
  */
 document.addEventListener('keyup', function(e) {
     var escapeKey = 27;
@@ -803,6 +836,9 @@ document.addEventListener('keyup', function(e) {
     }
 });
 
+/**
+ * Adds an event listener for mouse clicks on the canvas to see if the user has clicked on the 'info' image
+ */
 document.addEventListener('mousedown', function(e) {
     // taken from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
     // and http://www.homeandlearn.co.uk/JS/html5_canvas_mouse_events.html
