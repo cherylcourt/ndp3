@@ -3,6 +3,7 @@
  *
  * @param {number} x - x coordinate position on the canvas of this item
  * @param {number} y - y coordinate position on the canvas of this item
+ * @param {number} width - width of the image for this item
  * @param {string} sprite - the name of the image file that will be rendered for this item
  * @constructor
  */
@@ -56,7 +57,7 @@ MovableItem.inheritsFrom(RenderableItem);
  * @returns {number} the x-coordinate position on the canvas of the horizontal middle of this item
  */
 MovableItem.prototype.midPoint = function() {
-    return this.x + 50.5;
+    return this.x + (this.HORIZONTAL_TILE_WIDTH / 2);
 };
 
 /**
@@ -845,7 +846,7 @@ document.addEventListener('mousedown', function(event) {
 
     /**
      * Determine whether the user has clicked on the info image on the canvas
-     * 
+     *
      * @param {number} x - canvas x co-ordinate
      * @param {number} y - canvas y co-ordinate
      * @returns {boolean} - true if the x,y canvas co-ordinates are contained within the region that represents
