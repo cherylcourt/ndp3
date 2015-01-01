@@ -6,9 +6,10 @@
  * @param {string} sprite - the name of the image file that will be rendered for this item
  * @constructor
  */
-var RenderableItem = function(x, y, sprite) {
+var RenderableItem = function(x, y, width, sprite) {
     this.x = x;
     this.y = y;
+    this.width = width;
 
     if(sprite) {
         this.sprite = sprite;
@@ -38,7 +39,7 @@ RenderableItem.prototype.render = function() {
  * @constructor
  */
 var MovableItem = function(x, y, width, verticalBuffer, sprite) {
-    RenderableItem.call(this, x, y, sprite);
+    RenderableItem.call(this, x, y, width, sprite);
     this.HORIZONTAL_TILE_WIDTH = 101;
     this.VISIBLE_VERTICAL_TILE_HEIGHT = 83;
 
@@ -805,7 +806,7 @@ infoScreen = new InfoScreen();
 allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
 collectibleManager = new CollectibleManager(3, 5);
 player = new Player();
-infoItem = new RenderableItem(423, 507, 'images/info.png');
+infoItem = new RenderableItem(423, 507, 64, 'images/info.png');
 
 
 /**
@@ -838,15 +839,48 @@ document.addEventListener('keyup', function(e) {
 
 /**
  * Adds an event listener for mouse clicks on the canvas to see if the user has clicked on the 'info' image
+ * to toggle the info screen on and off
  */
-document.addEventListener('mousedown', function(e) {
-    // taken from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
-    // and http://www.homeandlearn.co.uk/JS/html5_canvas_mouse_events.html
-    var rect = canvas.getBoundingClientRect();
-    x = e.pageX - rect.left;
-    y = e.pageY - rect.top;
+document.addEventListener('mousedown', function(event) {
 
-    if(x > 423 && x < 487 && y > 507 && y < 571) {
+    /**
+     * Determine whether the user has clicked on the info image on the canvas
+     * 
+     * @param {number} x - canvas x co-ordinate
+     * @param {number} y - canvas y co-ordinate
+     * @returns {boolean} - true if the x,y canvas co-ordinates are contained within the region that represents
+     *                      the info image on the canvas; false otherwise
+     */
+    var coordinatesOnInfoItem = function(x, y) {
+        var infoLeftX = infoItem.x,
+            infoRightX = infoLeftX + infoItem.width,
+            infoTopY = infoItem.y,
+            infoBottomY = infoTopY + infoItem.width;    // infoItem is a square, so width == height
+
+        return (x > infoLeftX && x < infoRightX && y > infoTopY && y < infoBottomY);
+    };
+
+    /**
+     * Logic taken from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
+     * and http://www.homeandlearn.co.uk/JS/html5_canvas_mouse_events.html
+     *
+     * Get the bounding rectangle of the canvas and use that to translate the mouse event co-ordinates
+     * to canvas co-ordinates
+     *
+     * @param {object} event - mouse event
+     * @returns {{x: number, y: number}} - canvas co-ordinates
+     */
+    var translateCoordinates = function(event) {
+        var rect = canvas.getBoundingClientRect(),
+            x = event.pageX - rect.left,
+            y = event.pageY - rect.top;
+
+        return {x: x, y: y};
+    };
+
+    var coordinates = translateCoordinates(event);
+
+    if(coordinatesOnInfoItem(coordinates.x, coordinates.y)) {
         gameProperties.showInfo = !gameProperties.showInfo;
     }
 });
