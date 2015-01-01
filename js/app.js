@@ -482,6 +482,7 @@ Screen.prototype.drawTitle = function(title, x, y) {
 /**
  * Creates a new PauseScreen class.  This class contains all the information necessary to display the pause screen
  * with all game option information visible to the user.
+ *
  * @constructor
  */
 var PauseScreen = function() {
@@ -636,28 +637,28 @@ InfoScreen.inheritsFrom(Screen);
 
 InfoScreen.prototype.render = function() {
     infoTextX = 30;
-    startingTextY = 100;
+    startingInfoTextY = 100;
     this.renderOverlay();
 
-    this.drawTitle("Basic Gameplay", canvas.width / 2, startingTextY);
-    this.infoText("See how many times you can reach the water", infoTextX, startingTextY + 25);
-    this.infoText("without being hit by a bug.", infoTextX, startingTextY + 50);
+    this.drawTitle("Basic Gameplay", canvas.width / 2, startingInfoTextY);
+    this.infoText("See how many times you can reach the water", infoTextX, startingInfoTextY + 25);
+    this.infoText("without being hit by a bug.", infoTextX, startingInfoTextY + 50);
 
-    this.drawTitle("Coloured Tile Mode", canvas.width / 2, startingTextY + 100);
-    this.infoText("See how many tiles you can walk on without", infoTextX, startingTextY + 125);
-    this.infoText("being hit by a bug. Each tile is 10 pts, going in", infoTextX, startingTextY + 150);
-    this.infoText("the water is -30 pts and getting all tiles is 200.", infoTextX, startingTextY + 175);
+    this.drawTitle("Coloured Tile Mode", canvas.width / 2, startingInfoTextY + 100);
+    this.infoText("See how many tiles you can walk on without", infoTextX, startingInfoTextY + 125);
+    this.infoText("being hit by a bug. Each tile is 10 pts, going in", infoTextX, startingInfoTextY + 150);
+    this.infoText("the water is -30 pts and getting all tiles is 200.", infoTextX, startingInfoTextY + 175);
 
-    this.drawTitle("Collectibles Mode", canvas.width / 2, startingTextY + 225);
-    this.infoText("See how many gems you can collect without", infoTextX, startingTextY + 250);
-    this.infoText("being hit by a bug. Going in the water is -30", infoTextX, startingTextY + 275);
-    this.infoText("pts, Blue: 25pts, Orange: 50pts, Green: 75 pts", infoTextX, startingTextY + 300);
+    this.drawTitle("Collectibles Mode", canvas.width / 2, startingInfoTextY + 225);
+    this.infoText("See how many gems you can collect without", infoTextX, startingInfoTextY + 250);
+    this.infoText("being hit by a bug. Going in the water is -30", infoTextX, startingInfoTextY + 275);
+    this.infoText("pts, Blue: 25pts, Orange: 50pts, Green: 75 pts", infoTextX, startingInfoTextY + 300);
 
-    this.drawTitle("Alternate Directions Mode", canvas.width / 2, startingTextY + 350);
-    this.infoText("The second row of bugs move in the other", infoTextX, startingTextY + 375);
-    this.infoText("direction for an added challenge.", infoTextX, startingTextY + 400);
+    this.drawTitle("Alternate Directions Mode", canvas.width / 2, startingInfoTextY + 350);
+    this.infoText("The second row of bugs move in the other", infoTextX, startingInfoTextY + 375);
+    this.infoText("direction for an added challenge.", infoTextX, startingInfoTextY + 400);
 
-    this.infoText("* Changing modes resets the game.", infoTextX, startingTextY + 450);
+    this.infoText("* Changing modes resets the game.", infoTextX, startingInfoTextY + 450);
 };
 
 InfoScreen.prototype.infoText = function(text, x, y) {
@@ -707,7 +708,7 @@ ShowPoints.prototype.render = function(offset) {
 /**
  * This class keeps track of game points and whether the game is paused or the user wants to see the
  * information screen.
- * 
+ *
  * @constructor
  */
 var GameProperties = function() {
