@@ -457,11 +457,12 @@ var Screen = function() {
 Screen.prototype.renderOverlay = function() {
     ctx.globalAlpha = this.alpha;
     ctx.fillStyle = 'black';
-    ctx.fillRect(10, 60, 485, 516);
+    ctx.fillRect(10, 60, canvas.width - 20, canvas.height - 90);
     ctx.globalAlpha = 1;
+
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
-    ctx.strokeRect(10, 60, 485, 516);
+    ctx.strokeRect(10, 60, canvas.width - 20, canvas.height - 90);
 };
 
 /**
@@ -630,9 +631,7 @@ PauseScreen.prototype.getSelectedCharacterImageURL = function() {
     return this.characterImages[this.characterSelection];
 };
 
-var InfoScreen = function() {
-    this.alpha = 1;
-};
+var InfoScreen = function() {};
 
 InfoScreen.inheritsFrom(Screen);
 
