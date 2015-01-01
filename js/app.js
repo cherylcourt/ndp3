@@ -597,15 +597,14 @@ PauseScreen.prototype.handleInput = function (input) {
         case 'one':
             this.colouredTileModeOn = !this.colouredTileModeOn;
             gameProperties.reset();
-            player.resetWalkingArray();
             player.reset();
             break;
         case 'two':
             this.collectiblesOn = !this.collectiblesOn;
-            gameProperties.reset();
             if(!this.collectiblesOn) {
                 collectibleManager.removeCollectibles();
             }
+            gameProperties.reset();
             player.reset();
             break;
         case 'three':
