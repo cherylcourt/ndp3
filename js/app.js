@@ -1,6 +1,15 @@
+/**
+ * Base class that represents an item displayed on the screen that has a location and visible width and height
+ *
+ * @param {number} x - x coordinate position on the canvas of this item
+ * @param {number} y - y coordinate position on the canvas of this item
+ * @param {string} sprite - the name of the image file that will be rendered for this item
+ * @constructor
+ */
 var RenderableItem = function(x, y, sprite) {
     this.x = x;
     this.y = y;
+
     if(sprite) {
         this.sprite = sprite;
     }
@@ -19,17 +28,16 @@ RenderableItem.prototype.render = function() {
 
 /**
  * Base class that represents an item displayed on the screen that has a location and visible width and height
+ * and can change location
  *
  * @param {number} x - x coordinate position on the canvas of this item
  * @param {number} y - y coordinate position on the canvas of this item
  * @param {number} width - the visible width of the object (used to determine collision with other objects)
  * @param {number} verticalBuffer - number of pixels from the top of the canvas
- * @param sprite
+ * @param {string} sprite - the name of the image file that will be rendered for this item
  * @constructor
  */
 var MovableItem = function(x, y, width, verticalBuffer, sprite) {
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
     RenderableItem.call(this, x, y, sprite);
     this.HORIZONTAL_TILE_WIDTH = 101;
     this.VISIBLE_VERTICAL_TILE_HEIGHT = 83;
@@ -121,6 +129,10 @@ MovableItem.prototype.resetPosition = function() {
     this.y = this.startingYPosition;
 };
 
+/**
+ * A movable item that represents an enemy in the game.
+ * @constructor
+ */
 var Enemy = function() {
     this.verticalBuffer = 57;
 
@@ -135,12 +147,19 @@ var Enemy = function() {
 
 Enemy.inheritsFrom(MovableItem);
 
+/**
+ * generates a random valid y co-ordinate for an enemy.  Enemies can occupy any of the stone tile rows.
+ * @returns {number} - a random y co-ordinate that corresponds to one of the stone tile rows
+ */
 Enemy.prototype.generateYPosition = function() {
     return Math.floor(Math.random() * 3) * this.VISIBLE_VERTICAL_TILE_HEIGHT + this.verticalBuffer;
 };
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
+/**
+ * Updates the enemy position based on the direction it is moving as well as its speed
+ *
+ * @param {number} dt - a time delta between ticks
+ */
 Enemy.prototype.update = function(dt) {
     if (this.isReversedEnemy()) {
         if (this.x < -102) {
@@ -160,15 +179,30 @@ Enemy.prototype.update = function(dt) {
     }
 };
 
+
+/**
+ * Returns a boolean value determining whether the enemy should be moving from right to left.
+ * Only enemies on the second row of stone tiles when the alternate directions mode is on should be moving this way.
+ *
+ * @returns {boolean} - true if the enemy is moving from right to left, false otherwise
+ */
 Enemy.prototype.isReversedEnemy = function() {
     return pauseScreen.alternateDirectionsOn && (this.onRow() == 1);
 };
 
+/**
+ * Reset the enemy speed and position.
+ */
 Enemy.prototype.reset = function() {
     this.resetPosition();
     this.setSpeed();
 };
 
+/**
+ * Reset the position of the enemy.
+ * Y position is randomly generated.
+ * X position is based on whether this enemy is 'reversed'
+ */
 Enemy.prototype.resetPosition = function() {
     this.y = this.generateYPosition();
     if (this.isReversedEnemy()) {
@@ -180,7 +214,7 @@ Enemy.prototype.resetPosition = function() {
 };
 
 /**
- * Sets the speed of the enemy to a random value between 100 and 599 and
+ * Sets the speed of the enemy to a random value between 100 and 399 and
  * then sets the enemy sprite based on the speed range
  */
 Enemy.prototype.setSpeed = function () {
@@ -191,11 +225,11 @@ Enemy.prototype.setSpeed = function () {
 /**
  * Sets the sprite image based on the speed of the enemy
  *
- * Slowest (100-199) - blue
- * Slower  (200-299) - purple
- * Normal  (300-399) - red
- * Faster  (400-499) - yellow
- * Fastest (500-599) - green
+ * Slowest (100-149) - blue
+ * Slower  (150-199) - purple
+ * Normal  (200-249) - red
+ * Faster  (250-299) - yellow
+ * Fastest (300-399) - green
  */
 Enemy.prototype.setSpriteBySpeed = function () {
     if(this.speed >= 300) {
@@ -238,6 +272,7 @@ Player.inheritsFrom(MovableItem);
 Player.prototype.update = function() {
     // as per the comment in engine.js; this method should focus purely
     // on updating the data/properties related to the object
+    
     for(var enemy in allEnemies) {
         if(allEnemies[enemy].collidingWith(this)) {
             this.collideSound.play();
@@ -398,8 +433,8 @@ var Screen = function() {
 };
 
 /**
- * This method draws the background and border of the pause screen so that the game options are more visible to
- * the user.
+ * This method draws the background and border of an overlay screen so that the contents drawn on the screen
+ * are more visible to the user.
  */
 Screen.prototype.renderOverlay = function() {
     ctx.globalAlpha = this.alpha;
@@ -604,7 +639,7 @@ InfoScreen.prototype.render = function() {
     this.infoText("direction for an added challenge.", infoTextX, startingTextY + 400);
 
     this.infoText("* Changing modes resets the game.", infoTextX, startingTextY + 450);
-}
+};
 
 InfoScreen.prototype.infoText = function(text, x, y) {
     ctx.fillStyle = 'white';
