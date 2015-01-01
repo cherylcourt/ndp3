@@ -672,7 +672,7 @@ GameProperties.prototype.addPoints = function(row, column, points) {
 GameProperties.prototype.update = function() {
     var i = this.showPoints.length - 1;
     for(i; i >= 0; i--) {
-        if(this.showPoints.counter <= 0) {
+        if(this.showPoints[i].counter <= 0) {
             this.showPoints.splice(i, 1);
         }
     }
@@ -684,6 +684,8 @@ GameProperties.prototype.render = function() {
         lastRow;
 
     this.showPoints.forEach(function(showPoint) {
+        // if this point value is on the same tile as the last one offset the rendering so that it does not appear
+        // on top of the last value
         if(lastRow == showPoint.row && lastColumn == showPoint.column) {
             showPoint.render(offset);
             offset += 30;
@@ -695,7 +697,7 @@ GameProperties.prototype.render = function() {
         lastColumn = showPoint.column;
         lastRow = showPoint.row;
 
-    })
+    });
 };
 
 gameProperties = new GameProperties();
