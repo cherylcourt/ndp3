@@ -738,7 +738,7 @@ GameProperties.prototype.addPoints = function(row, column, points) {
 
 GameProperties.prototype.update = function() {
     var i = this.showPoints.length - 1;
-    for(i; i >= 0; i--) {
+    for(; i >= 0; i--) {
         if(this.showPoints[i].counter <= 0) {
             this.showPoints.splice(i, 1);
         }
@@ -809,8 +809,6 @@ document.addEventListener('mousedown', function(e) {
     var rect = canvas.getBoundingClientRect();
     x = e.pageX - rect.left;
     y = e.pageY - rect.top;
-
-    console.log(x.toString()+", "+ y.toString());
 
     if(x > 423 && x < 487 && y > 507 && y < 571) {
         gameProperties.showInfo = !gameProperties.showInfo;
