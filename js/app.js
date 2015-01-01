@@ -248,6 +248,9 @@ Enemy.prototype.setSpriteBySpeed = function () {
     }
 };
 
+/**
+ * Sets the correct image of the enemy when it reverses directions.
+ */
 Enemy.prototype.reverseEnemy = function() {
 
     if (this.sprite.indexOf('-reversed') != -1) {
@@ -259,6 +262,11 @@ Enemy.prototype.reverseEnemy = function() {
     }
 };
 
+/**
+ * This class represents the player character in the game.
+ *
+ * @constructor
+ */
 var Player = function() {
     MovableItem.call(this, 202, 380, 31, 48);
     this.collideSound = new Audio('sounds/crunch.wav');
@@ -269,12 +277,16 @@ var Player = function() {
 
 Player.inheritsFrom(MovableItem);
 
+/**
+ * Check to see if the Player collides with an enemy.
+ * If coloured tile mode is on, check to see if the player has walked on a new tile.
+ * If collectible mode is on, check to see if the player has collided with a collectible.
+ */
 Player.prototype.update = function() {
-    // as per the comment in engine.js; this method should focus purely
-    // on updating the data/properties related to the object
-    
-    for(var enemy in allEnemies) {
-        if(allEnemies[enemy].collidingWith(this)) {
+
+    var enemyLength = allEnemies.length;
+    for(var i = 0; i < enemyLength; i++) {
+        if(allEnemies[i].collidingWith(this)) {
             this.collideSound.play();
             gameProperties.reset();
             this.reset();
