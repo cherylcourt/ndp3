@@ -75,7 +75,6 @@ MovableItem.prototype.visibleRight = function() {
 };
 
 /**
- *
  * @returns {number} - the row that this item currently occupies; numbering starts at 0 from the top row
  */
 MovableItem.prototype.onRow = function() {
@@ -133,6 +132,7 @@ MovableItem.prototype.resetPosition = function() {
 
 /**
  * A movable item that represents an enemy in the game.
+ *
  * @constructor
  */
 var Enemy = function() {
@@ -150,7 +150,8 @@ var Enemy = function() {
 Enemy.inheritsFrom(MovableItem);
 
 /**
- * generates a random valid y co-ordinate for an enemy.  Enemies can occupy any of the stone tile rows.
+ * Generates a random valid y co-ordinate for an enemy.  Enemies can occupy any of the stone tile rows.
+ *
  * @returns {number} - a random y co-ordinate that corresponds to one of the stone tile rows
  */
 Enemy.prototype.generateYPosition = function() {
@@ -201,7 +202,7 @@ Enemy.prototype.reset = function() {
 };
 
 /**
- * Reset the position of the enemy.
+ * Resets the position of the enemy.
  * Y position is randomly generated.
  * X position is based on whether this enemy is 'reversed'
  */
@@ -225,7 +226,7 @@ Enemy.prototype.setSpeed = function () {
 };
 
 /**
- * Sets the sprite image based on the speed of the enemy
+ * Sets the sprite image based on the speed of the enemy:
  *
  * Slowest (100-149) - blue
  * Slower  (150-199) - purple
@@ -279,6 +280,7 @@ var Player = function() {
 
 Player.inheritsFrom(MovableItem);
 
+//TODO: split the following up into smaller methods
 /**
  * Check to see if the Player collides with an enemy.
  * If coloured tile mode is on, check to see if the player has walked on a new tile.
@@ -467,6 +469,7 @@ Screen.prototype.renderOverlay = function() {
 
 /**
  * Draw a grey centered title on the canvas with a black shadow.
+ *
  * @param {string} title - the text of the title
  * @param {number} x - the canvas x-coordinate of the middle of the title
  * @param {number} y - the canvas y-coordinate of the title text
@@ -525,6 +528,7 @@ PauseScreen.prototype.render = function() {
 
 /**
  * Draw the characters available for selection.
+ *
  * @param {number} x - the canvas x-coordinate of the left-most character image
  * @param {number} y - the canvas x-coordinate of all the character images
  * @param {number} spacingInterval - the x-coordinate interval to use to evenly space the character images
@@ -542,6 +546,7 @@ PauseScreen.prototype.drawCharacterSelect = function(x, y, spacingInterval) {
 
 /**
  * Draw the available game mode text as well as whether the game mode is currently "ON" or "OFF"
+ *
  * @param {string} image - the url of the image file
  * @param {string} modeText - the text describing the mode to the user
  * @param {boolean} isOn - true if this game mode is enabled; false if this game mode is disabled
@@ -569,6 +574,7 @@ PauseScreen.prototype.drawGameModeText = function(image, modeText, isOn, y) {
 
 /**
  * Draws the message that lets the user know to press the escape key to exit the pause screen.
+ *
  * @param {number} y - the canvas y-coordinate of where the message should be drawn
  */
 PauseScreen.prototype.drawEscapeMessage = function(y) {
@@ -583,6 +589,7 @@ PauseScreen.prototype.drawEscapeMessage = function(y) {
  * This function is called by the event listener that is listening for keyUp events when the game is
  * considered 'paused'.  Based on which key was pressed either a new character is selected or a game mode
  * is enabled/disabled.
+ *
  * @param {string} input - the string representation of the key that the user pressed
  */
 PauseScreen.prototype.handleInput = function (input) {
@@ -625,6 +632,7 @@ PauseScreen.prototype.handleInput = function (input) {
 
 /**
  * Gets the URL of the image for the selected character
+ *
  * @returns {string} - image URL of the selected character
  */
 PauseScreen.prototype.getSelectedCharacterImageURL = function() {
@@ -861,11 +869,11 @@ document.addEventListener('mousedown', function(event) {
     };
 
     /**
-     * Logic taken from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
-     * and http://www.homeandlearn.co.uk/JS/html5_canvas_mouse_events.html
-     *
      * Get the bounding rectangle of the canvas and use that to translate the mouse event co-ordinates
      * to canvas co-ordinates
+     *
+     * Logic taken from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
+     * and http://www.homeandlearn.co.uk/JS/html5_canvas_mouse_events.html
      *
      * @param {object} event - mouse event
      * @returns {{x: number, y: number}} - canvas co-ordinates
