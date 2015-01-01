@@ -1,3 +1,22 @@
+var RenderableItem = function(x, y, sprite) {
+    this.x = x;
+    this.y = y;
+    if(sprite) {
+        this.sprite = sprite;
+    }
+    else {
+        this.sprite = 'images/blank-tile.png';
+    }
+};
+
+/**
+ * This is the function that is called by the game engine to render this item on the screen.
+ */
+RenderableItem.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+
+};
+
 /**
  * Base class that represents an item displayed on the screen that has a location and visible width and height
  *
@@ -5,45 +24,43 @@
  * @param {number} y - y coordinate position on the canvas of this item
  * @param {number} width - the visible width of the object (used to determine collision with other objects)
  * @param {number} verticalBuffer - number of pixels from the top of the canvas
+ * @param sprite
  * @constructor
  */
-var Item = function(x, y, width, verticalBuffer, sprite) {
+var MovableItem = function(x, y, width, verticalBuffer, sprite) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
+    RenderableItem.call(this, x, y, sprite);
     this.HORIZONTAL_TILE_WIDTH = 101;
     this.VISIBLE_VERTICAL_TILE_HEIGHT = 83;
-    if(sprite) {
-        this.sprite = sprite;
-    }
-    else {
-        this.sprite = 'images/blank-tile.png';
-    }
+
     this.startingXPosition = x;
     this.startingYPosition = y;
-    this.x = x; // Item's current x-position
-    this.y = y; // Item's current y-position
+
     this.halfVisibleWidth = width / 2;
     this.rowAdjust = verticalBuffer;
 };
 
+MovableItem.inheritsFrom(RenderableItem);
+
 /**
  * @returns {number} the x-coordinate position on the canvas of the horizontal middle of this item
  */
-Item.prototype.midPoint = function() {
+MovableItem.prototype.midPoint = function() {
     return this.x + 50.5;
 };
 
 /**
  * @returns {number} - the x-coordinate position on the canvas of the left boundary of the visible part of this item
  */
-Item.prototype.visibleLeft = function() {
+MovableItem.prototype.visibleLeft = function() {
     return this.midPoint() - this.halfVisibleWidth;
 };
 
 /**
  * @returns {number} - the x-coordinate position on the canvas of the right boundary of the visible part of this item
  */
-Item.prototype.visibleRight = function() {
+MovableItem.prototype.visibleRight = function() {
     return this.midPoint() + this.halfVisibleWidth;
 };
 
@@ -51,7 +68,7 @@ Item.prototype.visibleRight = function() {
  *
  * @returns {number} - the row that this item currently occupies; numbering starts at 0 from the top row
  */
-Item.prototype.onRow = function() {
+MovableItem.prototype.onRow = function() {
     var adjustedY = this.y - this.rowAdjust;
     if (adjustedY != 0) {
         return Math.floor((this.y - this.rowAdjust) / this.VISIBLE_VERTICAL_TILE_HEIGHT);
@@ -64,7 +81,7 @@ Item.prototype.onRow = function() {
 /**
  * @returns {number} - the column that this item currently occupies; numbering starts at 0 from left-most column
  */
-Item.prototype.onColumn = function() {
+MovableItem.prototype.onColumn = function() {
     if (this.x != 0) {
         return Math.floor(this.x / this.HORIZONTAL_TILE_WIDTH);
     }
@@ -74,20 +91,13 @@ Item.prototype.onColumn = function() {
 };
 
 /**
- * This is the function that is called by the game engine to render this item on the screen.
- */
-Item.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
-
-/**
  * Check to see if this object "collides with" (or occupies the same space) as another object.  If the visible
  * boundaries of both items on the x-axis overlap and they are both on the same row then these items have collided
  *
  * @param {object} item - the other Item we are checking against
  * @returns {boolean} - whether the two items visible boundaries overlap; true, if so, false otherwise
  */
-Item.prototype.collidingWith = function(item) {
+MovableItem.prototype.collidingWith = function(item) {
     try {
         if (this.onRow() == item.onRow()) {
             // the two items are on the same row; check to see if they are touching each other
@@ -103,7 +113,10 @@ Item.prototype.collidingWith = function(item) {
     }
 };
 
-Item.prototype.resetPosition = function() {
+/**
+ * Resets this item's position to the initial x, y coordinates passed into this object
+ */
+MovableItem.prototype.resetPosition = function() {
     this.x = this.startingXPosition;
     this.y = this.startingYPosition;
 };
@@ -111,7 +124,7 @@ Item.prototype.resetPosition = function() {
 var Enemy = function() {
     this.verticalBuffer = 57;
 
-    Item.call(this,
+    MovableItem.call(this,
         -102,
         this.generateYPosition(),
         86,
@@ -120,7 +133,7 @@ var Enemy = function() {
     this.setSpeed();
 };
 
-Enemy.inheritsFrom(Item);
+Enemy.inheritsFrom(MovableItem);
 
 Enemy.prototype.generateYPosition = function() {
     return Math.floor(Math.random() * 3) * this.VISIBLE_VERTICAL_TILE_HEIGHT + this.verticalBuffer;
@@ -213,14 +226,14 @@ Enemy.prototype.reverseEnemy = function() {
 };
 
 var Player = function() {
-    Item.call(this, 202, 380, 31, 48);
+    MovableItem.call(this, 202, 380, 31, 48);
     this.collideSound = new Audio('sounds/crunch.wav');
     this.splashSound = new Audio('sounds/water-splash.wav');
     this.collectSound = new Audio('sounds/ding.mp3');
     this.resetWalkingArray();
 };
 
-Player.inheritsFrom(Item);
+Player.inheritsFrom(MovableItem);
 
 Player.prototype.update = function() {
     // as per the comment in engine.js; this method should focus purely
@@ -332,13 +345,13 @@ Player.prototype.setCharacter = function(sprite) {
 };
 
 var Collectible = function(x, y, points, sprite) {
-    Item.call(this, x, y, 95, 57);
+    MovableItem.call(this, x, y, 95, 57);
 
     this.sprite = sprite;
     this.points = points;
 };
 
-Collectible.inheritsFrom(Item);
+Collectible.inheritsFrom(MovableItem);
 
 var CollectibleManager = function(usableGameRows, usableGameColumns) {
     this.rows = usableGameRows;
@@ -706,7 +719,7 @@ infoScreen = new InfoScreen();
 allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
 collectibleManager = new CollectibleManager(3, 5);
 player = new Player();
-infoItem = new Item(423, 507, 64, 0, 'images/info.png');
+infoItem = new RenderableItem(423, 507, 'images/info.png');
 
 
 /**
