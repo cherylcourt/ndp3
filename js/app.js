@@ -284,8 +284,10 @@ Player.inheritsFrom(MovableItem);
  */
 Player.prototype.update = function() {
 
-    var enemyLength = allEnemies.length;
-    for(var i = 0; i < enemyLength; i++) {
+    var allEnemiesLength = allEnemies.length,
+        i;
+
+    for(i = 0; i < allEnemiesLength; i++) {
         if(allEnemies[i].collidingWith(this)) {
             this.collideSound.play();
             gameProperties.reset();
@@ -302,8 +304,10 @@ Player.prototype.update = function() {
     }
 
     var collectibles = collectibleManager.currentCollectibles;
-    for(var index in collectibles) {
-        var collectible = collectibles[index];
+    var collectiblesLength = collectibles.length;
+
+    for(i = 0; i < collectiblesLength; i++) {
+        var collectible = collectibles[i];
 
         if(collectible.collidingWith(this)) {
             this.collectSound.play();
@@ -524,8 +528,11 @@ PauseScreen.prototype.render = function() {
 PauseScreen.prototype.drawCharacterSelect = function(x, y, spacingInterval) {
     ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection * spacingInterval + x, y);
 
-    for(var characterIndex in this.characterImages) {
-        ctx.drawImage(Resources.get(this.characterImages[characterIndex]), characterIndex * spacingInterval + x, y);
+    var characterImagesLength = this.characterImages.length,
+        i;
+
+    for(i = 0; i < characterImagesLength; i++) {
+        ctx.drawImage(Resources.get(this.characterImages[i]), i * spacingInterval + x, y);
     }
 };
 
