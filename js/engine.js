@@ -119,20 +119,10 @@ var Engine = (function(global) {
     function render() {
 
         renderBackground();
+        renderGameInfo();
         renderEntities();
-        renderConsecutiveSuccesses();
-        renderGamePoints();
+        renderScreens();
 
-        if(gameProperties.pauseGame) {
-            renderPauseScreen();
-        }
-
-        if(gameProperties.showInfo) {
-            infoScreen.render();
-        }
-
-        infoItem.render();
-        gameProperties.render();
     }
 
     function renderBackground() {
@@ -204,36 +194,20 @@ var Engine = (function(global) {
         player.render();
     }
 
-    //TODO: create an Item or something similar for the following and call their render methods in Engine.render()
-    function renderConsecutiveSuccesses() {
-        if(gameProperties.consecutiveSuccesses > 0) {
-            ctx.fillStyle = 'white';
-            ctx.font = '20pt Nunito, sans-serif';
-            ctx.textAlign = 'right';
-            ctx.fillText(gameProperties.consecutiveSuccesses.toString(), canvas.width - 7, 40);
-        }
-    }
-
-    function renderGamePoints() {
-        ctx.fillStyle = 'white';
-        ctx.font = '20pt Nunito, sans-serif';
-        if((gameProperties.colouredTileModeOn || gameProperties.collectiblesOn) && gameProperties.currentGamePoints) {
-            ctx.textAlign = 'left';
-            ctx.fillText(gameProperties.currentGamePoints.toString()+' pts', 7, 40);
-        }
-
-        if((gameProperties.colouredTileModeOn || gameProperties.collectiblesOn) && gameProperties.bestGamePoints &&
-            gameProperties.bestGamePoints > 0) {
-            ctx.font = '10pt Nunito, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('High Score', canvas.width/2, 15);
-            ctx.font = '20pt Nunito, sans-serif';
-            ctx.fillText(gameProperties.bestGamePoints.toString()+' pts', canvas.width/2, 40);
-        }
-    }
-
-    function renderPauseScreen() {
+    /**
+     * Render any screens that may be displayed to the user.  Render the info button image over the screens.
+     */
+    function renderScreens() {
         pauseScreen.render();
+        infoScreen.render();
+        infoItem.render();
+    }
+
+    /**
+     * Render game information (game points, etc.)
+     */
+    function renderGameInfo() {
+        gameProperties.render();
     }
 
     /* This function does nothing but it could have been a good place to

@@ -512,14 +512,16 @@ PauseScreen.inheritsFrom(Screen);
  * There is also a message letting the user know how to exit the pause screen.
  */
 PauseScreen.prototype.render = function() {
-    this.renderOverlay();
-    this.drawTitle('SELECT A CHARACTER', canvas.width/2, 100);
-    this.drawCharacterSelect(21, 115, 90);
-    this.drawTitle('GAME MODES', canvas.width/2, 330);
-    this.drawGameModeText('images/1-icon.png', 'Coloured Tile', gameProperties.colouredTileModeOn, 337);
-    this.drawGameModeText('images/2-icon.png', 'Collectibles', gameProperties.collectiblesOn, 397);
-    this.drawGameModeText('images/3-icon.png', 'Alternate Directions', gameProperties.alternateDirectionsOn, 457);
-    this.drawEscapeMessage(555);
+    if(gameProperties.pauseGame) {
+        this.renderOverlay();
+        this.drawTitle('SELECT A CHARACTER', canvas.width/2, 100);
+        this.drawCharacterSelect(21, 115, 90);
+        this.drawTitle('GAME MODES', canvas.width/2, 330);
+        this.drawGameModeText('images/1-icon.png', 'Coloured Tile', gameProperties.colouredTileModeOn, 337);
+        this.drawGameModeText('images/2-icon.png', 'Collectibles', gameProperties.collectiblesOn, 397);
+        this.drawGameModeText('images/3-icon.png', 'Alternate Directions', gameProperties.alternateDirectionsOn, 457);
+        this.drawEscapeMessage(555);
+    }
 };
 
 /**
@@ -626,29 +628,31 @@ var InfoScreen = function() {};
 InfoScreen.inheritsFrom(Screen);
 
 InfoScreen.prototype.render = function() {
-    infoTextX = 30;
-    startingInfoTextY = 100;
-    this.renderOverlay();
+    if(gameProperties.showInfo) {
+        infoTextX = 30;
+        startingInfoTextY = 100;
+        this.renderOverlay();
 
-    this.drawTitle("Basic Gameplay", canvas.width / 2, startingInfoTextY);
-    this.infoText("See how many times you can reach the water", infoTextX, startingInfoTextY + 25);
-    this.infoText("without being hit by a bug.", infoTextX, startingInfoTextY + 50);
+        this.drawTitle("Basic Gameplay", canvas.width / 2, startingInfoTextY);
+        this.infoText("See how many times you can reach the water", infoTextX, startingInfoTextY + 25);
+        this.infoText("without being hit by a bug.", infoTextX, startingInfoTextY + 50);
 
-    this.drawTitle("Coloured Tile Mode", canvas.width / 2, startingInfoTextY + 100);
-    this.infoText("See how many tiles you can walk on without", infoTextX, startingInfoTextY + 125);
-    this.infoText("being hit by a bug. Each tile is 10 pts, going in", infoTextX, startingInfoTextY + 150);
-    this.infoText("the water is -30 pts and getting all tiles is 200.", infoTextX, startingInfoTextY + 175);
+        this.drawTitle("Coloured Tile Mode", canvas.width / 2, startingInfoTextY + 100);
+        this.infoText("See how many tiles you can walk on without", infoTextX, startingInfoTextY + 125);
+        this.infoText("being hit by a bug. Each tile is 10 pts, going in", infoTextX, startingInfoTextY + 150);
+        this.infoText("the water is -30 pts and getting all tiles is 200.", infoTextX, startingInfoTextY + 175);
 
-    this.drawTitle("Collectibles Mode", canvas.width / 2, startingInfoTextY + 225);
-    this.infoText("See how many gems you can collect without", infoTextX, startingInfoTextY + 250);
-    this.infoText("being hit by a bug. Going in the water is -30", infoTextX, startingInfoTextY + 275);
-    this.infoText("pts, Blue: 25pts, Orange: 50pts, Green: 75 pts", infoTextX, startingInfoTextY + 300);
+        this.drawTitle("Collectibles Mode", canvas.width / 2, startingInfoTextY + 225);
+        this.infoText("See how many gems you can collect without", infoTextX, startingInfoTextY + 250);
+        this.infoText("being hit by a bug. Going in the water is -30", infoTextX, startingInfoTextY + 275);
+        this.infoText("pts, Blue: 25pts, Orange: 50pts, Green: 75 pts", infoTextX, startingInfoTextY + 300);
 
-    this.drawTitle("Alternate Directions Mode", canvas.width / 2, startingInfoTextY + 350);
-    this.infoText("The second row of bugs move in the other", infoTextX, startingInfoTextY + 375);
-    this.infoText("direction for an added challenge.", infoTextX, startingInfoTextY + 400);
+        this.drawTitle("Alternate Directions Mode", canvas.width / 2, startingInfoTextY + 350);
+        this.infoText("The second row of bugs move in the other", infoTextX, startingInfoTextY + 375);
+        this.infoText("direction for an added challenge.", infoTextX, startingInfoTextY + 400);
 
-    this.infoText("* Changing modes resets the game.", infoTextX, startingInfoTextY + 450);
+        this.infoText("* Changing modes resets the game.", infoTextX, startingInfoTextY + 450);
+    }
 };
 
 InfoScreen.prototype.infoText = function(text, x, y) {
@@ -809,6 +813,17 @@ GameProperties.prototype.update = function() {
  * When called by the game engine this renders all game points on the canvas that are either added or subtracted.
  */
 GameProperties.prototype.render = function() {
+    this._renderNewPoints();
+    this._renderGamePoints();
+    this._renderConsecutiveSuccesses();
+};
+
+/**
+ * Renders all game points on the canvas that are either added or subtracted.
+ *
+ * @private
+ */
+GameProperties.prototype._renderNewPoints = function() {
     var OFFSET_INCREMENT = 30,
         offset = OFFSET_INCREMENT,
         lastColumn,
@@ -829,6 +844,38 @@ GameProperties.prototype.render = function() {
         lastRow = showPoint.row;
 
     });
+};
+
+/**
+ * Renders the current total game points and best game points at the top of the canvas
+ *
+ * @private
+ */
+GameProperties.prototype._renderGamePoints = function() {
+    ctx.fillStyle = 'white';
+    ctx.font = '20pt Nunito, sans-serif';
+    if((this.colouredTileModeOn || this.collectiblesOn) && this.currentGamePoints) {
+        ctx.textAlign = 'left';
+        ctx.fillText(this.currentGamePoints.toString()+' pts', 7, 40);
+    }
+
+    if((this.colouredTileModeOn || this.collectiblesOn) && this.bestGamePoints &&
+        this.bestGamePoints > 0) {
+        ctx.font = '10pt Nunito, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('High Score', canvas.width/2, 15);
+        ctx.font = '20pt Nunito, sans-serif';
+        ctx.fillText(this.bestGamePoints.toString()+' pts', canvas.width/2, 40);
+    }
+};
+
+GameProperties.prototype._renderConsecutiveSuccesses = function() {
+    if(gameProperties.consecutiveSuccesses > 0) {
+        ctx.fillStyle = 'white';
+        ctx.font = '20pt Nunito, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(gameProperties.consecutiveSuccesses.toString(), canvas.width - 7, 40);
+    }
 };
 
 gameProperties = new GameProperties();
