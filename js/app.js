@@ -190,7 +190,7 @@ Enemy.prototype.update = function(dt) {
  * @returns {boolean} - true if the enemy is moving from right to left, false otherwise
  */
 Enemy.prototype.isReversedEnemy = function() {
-    return pauseScreen.alternateDirectionsOn && (this.onRow() == 1);
+    return gameProperties.alternateDirectionsOn && (this.onRow() == 1);
 };
 
 /**
@@ -247,14 +247,14 @@ Enemy.prototype.setSpriteBySpeed = function () {
         this.sprite = 'images/enemy-bug-blue.png';
     }
     if(this.isReversedEnemy()) {
-        this.reverseEnemy();
+        this.reverseEnemyImage();
     }
 };
 
 /**
  * Sets the correct image of the enemy when it reverses directions.
  */
-Enemy.prototype.reverseEnemy = function() {
+Enemy.prototype.reverseEnemyImage = function() {
 
     if (this.sprite.indexOf('-reversed') != -1) {
         this.sprite = this.sprite.replace('-reversed', '');
@@ -295,13 +295,12 @@ Player.prototype.update = function() {
         if(allEnemies[i].collidingWith(this)) {
             this.collideSound.play();
             gameProperties.reset();
-            this.reset();
             break;
         }
     }
 
     if(this.onRow() < 3) {
-        if(pauseScreen.colouredTileModeOn && this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
+        if(gameProperties.colouredTileModeOn && this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
             gameProperties.addPoints(this.onRow(), this.onColumn(), 10);
             this.walkedSuccess[this.onRow()].push(this.onColumn());
         }
@@ -320,7 +319,7 @@ Player.prototype.update = function() {
         }
     }
 
-    if (!pauseScreen.colouredTileModeOn) {
+    if (!gameProperties.colouredTileModeOn) {
         this.resetWalkingArray();
     }
 
@@ -420,7 +419,7 @@ var CollectibleManager = function(usableGameRows, usableGameColumns) {
 
     this.currentCollectibles = [];
 
-    if (pauseScreen.collectiblesOn) {
+    if (gameProperties.collectiblesOn) {
         this.resetCollectible();
     }
 };
@@ -439,7 +438,7 @@ CollectibleManager.prototype.resetCollectible = function() {
 };
 
 CollectibleManager.prototype.update = function() {
-    if(pauseScreen.collectiblesOn && this.currentCollectibles.length == 0) {
+    if(gameProperties.collectiblesOn && this.currentCollectibles.length == 0) {
         this.resetCollectible();
     }
 };
@@ -503,9 +502,6 @@ var PauseScreen = function() {
 
     this.alpha = 0.85;
     this.characterSelection = 0;
-    this.colouredTileModeOn = false;
-    this.collectiblesOn = false;
-    this.alternateDirectionsOn = false;
 };
 
 PauseScreen.inheritsFrom(Screen);
@@ -520,9 +516,9 @@ PauseScreen.prototype.render = function() {
     this.drawTitle('SELECT A CHARACTER', canvas.width/2, 100);
     this.drawCharacterSelect(21, 115, 90);
     this.drawTitle('GAME MODES', canvas.width/2, 330);
-    this.drawGameModeText('images/1-icon.png', 'Coloured Tile', this.colouredTileModeOn, 337);
-    this.drawGameModeText('images/2-icon.png', 'Collectibles', this.collectiblesOn, 397);
-    this.drawGameModeText('images/3-icon.png', 'Alternate Directions', this.alternateDirectionsOn, 457);
+    this.drawGameModeText('images/1-icon.png', 'Coloured Tile', gameProperties.colouredTileModeOn, 337);
+    this.drawGameModeText('images/2-icon.png', 'Collectibles', gameProperties.collectiblesOn, 397);
+    this.drawGameModeText('images/3-icon.png', 'Alternate Directions', gameProperties.alternateDirectionsOn, 457);
     this.drawEscapeMessage(555);
 };
 
@@ -605,27 +601,13 @@ PauseScreen.prototype.handleInput = function (input) {
             }
             break;
         case 'one':
-            this.colouredTileModeOn = !this.colouredTileModeOn;
-            gameProperties.reset();
-            player.reset();
+            gameProperties.toggleColouredTileMode();
             break;
         case 'two':
-            this.collectiblesOn = !this.collectiblesOn;
-            if(!this.collectiblesOn) {
-                collectibleManager.removeCollectibles();
-            }
-            gameProperties.reset();
-            player.reset();
+            gameProperties.toggleCollectiblesMode();
             break;
         case 'three':
-            this.alternateDirectionsOn = !this.alternateDirectionsOn;
-            allEnemies.forEach(function(enemy) {
-               if (enemy.onRow() == 1) {
-                   enemy.reverseEnemy();
-               }
-            });
-            gameProperties.reset();
-            player.reset();
+            gameProperties.toggleAlternateDirectionsMode();
             break;
     }
 };
@@ -726,11 +708,38 @@ var GameProperties = function() {
     this.consecutiveSuccesses = 0;
     this.showInfo = false;
     this.showPoints = [];
+    this.colouredTileModeOn = false;
+    this.collectiblesOn = false;
+    this.alternateDirectionsOn = false;
+};
+
+GameProperties.prototype.toggleColouredTileMode = function() {
+    this.colouredTileModeOn = !this.colouredTileModeOn;
+    this.reset();
+};
+
+GameProperties.prototype.toggleCollectiblesMode = function() {
+    this.collectiblesOn = !this.collectiblesOn;
+    if(!this.collectiblesOn) {
+        collectibleManager.removeCollectibles();
+    }
+    this.reset();
+};
+
+GameProperties.prototype.toggleAlternateDirectionsMode = function() {
+    this.alternateDirectionsOn = !this.alternateDirectionsOn;
+    allEnemies.forEach(function(enemy) {
+        if (enemy.onRow() == 1) {
+            enemy.reverseEnemyImage();
+        }
+    });
+    this.reset();
 };
 
 /**
  * This method should be called when the game is reset.  All points are reset to 0 and if the current game points
  * accrued is greater than the best score, then the best score is set to the current game points before being reset.
+ * The player is also reset.
  */
 GameProperties.prototype.reset = function() {
     if (this.currentGamePoints > this.bestGamePoints) {
@@ -738,6 +747,7 @@ GameProperties.prototype.reset = function() {
     }
     this.consecutiveSuccesses = 0;
     this.currentGamePoints = 0;
+    player.reset();
 };
 
 /**
@@ -747,7 +757,7 @@ GameProperties.prototype.reset = function() {
  * @param {number} column - the column where the player reached the top row
  */
 GameProperties.prototype.playerReachedTopRow = function(column) {
-    if(pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) {
+    if(this.colouredTileModeOn || this.collectiblesOn) {
         // lose 30 points for going in the water
         this.addPoints(0, column, -30);
     }
@@ -787,7 +797,8 @@ GameProperties.prototype.update = function() {
  * When called by the game engine this renders all game points on the canvas that are either added or subtracted.
  */
 GameProperties.prototype.render = function() {
-    var offset = 30,
+    var OFFSET_INCREMENT = 30,
+        offset = OFFSET_INCREMENT,
         lastColumn,
         lastRow;
 
@@ -796,10 +807,10 @@ GameProperties.prototype.render = function() {
         // on top of the last value
         if(lastRow == showPoint.row && lastColumn == showPoint.column) {
             showPoint.render(offset);
-            offset += 30;
+            offset += OFFSET_INCREMENT;
         }
         else {
-            offset = 30;
+            offset = OFFSET_INCREMENT;
             showPoint.render();
         }
         lastColumn = showPoint.column;

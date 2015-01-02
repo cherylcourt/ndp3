@@ -104,7 +104,7 @@ var Engine = (function(global) {
             gameProperties.update();
         }
 
-        if(pauseScreen.collectiblesOn) {
+        if(gameProperties.collectiblesOn) {
             collectibleManager.update();
         }
 
@@ -170,7 +170,7 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                if(pauseScreen.colouredTileModeOn &&
+                if(gameProperties.colouredTileModeOn &&
                     player.walkedSuccess[row-1] &&
                     player.walkedSuccess[row-1].indexOf(col) >= 0) {
                     //TODO: this should probably moved to the render method of something
@@ -217,12 +217,12 @@ var Engine = (function(global) {
     function renderGamePoints() {
         ctx.fillStyle = 'white';
         ctx.font = '20pt Nunito, sans-serif';
-        if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && gameProperties.currentGamePoints) {
+        if((gameProperties.colouredTileModeOn || gameProperties.collectiblesOn) && gameProperties.currentGamePoints) {
             ctx.textAlign = 'left';
             ctx.fillText(gameProperties.currentGamePoints.toString()+' pts', 7, 40);
         }
 
-        if((pauseScreen.colouredTileModeOn || pauseScreen.collectiblesOn) && gameProperties.bestGamePoints &&
+        if((gameProperties.colouredTileModeOn || gameProperties.collectiblesOn) && gameProperties.bestGamePoints &&
             gameProperties.bestGamePoints > 0) {
             ctx.font = '10pt Nunito, sans-serif';
             ctx.textAlign = 'center';
