@@ -93,23 +93,14 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        if(gameProperties.pauseGame) {
-            //TODO: move getSelectedCharacter to GameProperties
-            player.setCharacter(pauseScreen.getSelectedCharacterImageURL());
-        }
-        else {
+        gameProperties.update();
+        if(!gameProperties.pauseGame) {
             allEnemies.forEach(function(enemy) {
                 enemy.update(dt);
             });
             player.update();
-            gameProperties.update();
         }
-
-        //TODO: move this to GameProperties
-        if(gameProperties.collectiblesOn) {
-            collectibleManager.update();
-        }
-
+        collectibleManager.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -178,6 +169,13 @@ var Engine = (function(global) {
         }
     }
 
+    /**
+     * Render game information (game points, etc.)
+     */
+    function renderGameInfo() {
+        gameProperties.render();
+    }
+
     /* This function is called by the render function and is called on each game
      * tick. It's purpose is to then call the render functions you have defined
      * on your enemy and player entities within app.js
@@ -205,13 +203,6 @@ var Engine = (function(global) {
         pauseScreen.render();
         infoScreen.render();
         infoItem.render();
-    }
-
-    /**
-     * Render game information (game points, etc.)
-     */
-    function renderGameInfo() {
-        gameProperties.render();
     }
 
     /* This function does nothing but it could have been a good place to

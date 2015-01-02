@@ -481,23 +481,13 @@ Screen.prototype.drawTitle = function(title, x, y) {
 
 
 /**
- * Creates a new PauseScreen class.  This class contains all the information necessary to display the pause screen
+ * Creates a new PauseScreen class.  This class contains all the functionality necessary to display the pause screen
  * with all game option information visible to the user.
  *
  * @constructor
  */
 var PauseScreen = function() {
-    //TODO: consider passing this information into the class or putting it in GameProperties
-    this.characterImages = [
-        'images/char-boy.png',
-        'images/char-cat-girl.png',
-        'images/char-horn-girl.png',
-        'images/char-pink-girl.png',
-        'images/char-princess-girl.png'
-    ];
-
     this.alpha = 0.85;
-    this.characterSelection = 0;
 };
 
 PauseScreen.inheritsFrom(Screen);
@@ -511,30 +501,12 @@ PauseScreen.prototype.render = function() {
     if(gameProperties.pauseGame) {
         this.renderOverlay();
         this.drawTitle('SELECT A CHARACTER', ctx.canvas.width/2, 100);
-        this.drawCharacterSelect(21, 115, 90);
+        gameProperties.drawCharacterSelect(21, 115, 90);
         this.drawTitle('GAME MODES', ctx.canvas.width/2, 330);
         this.drawGameModeText('images/1-icon.png', 'Coloured Tile', gameProperties.colouredTileModeOn, 337);
         this.drawGameModeText('images/2-icon.png', 'Collectibles', gameProperties.collectiblesOn, 397);
         this.drawGameModeText('images/3-icon.png', 'Alternate Directions', gameProperties.alternateDirectionsOn, 457);
         this.drawEscapeMessage(555);
-    }
-};
-
-/**
- * Draw the characters available for selection.
- *
- * @param {number} x - the canvas x-coordinate of the left-most character image
- * @param {number} y - the canvas x-coordinate of all the character images
- * @param {number} spacingInterval - the x-coordinate interval to use to evenly space the character images
- */
-PauseScreen.prototype.drawCharacterSelect = function(x, y, spacingInterval) {
-    ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection * spacingInterval + x, y);
-
-    var characterImagesLength = this.characterImages.length,
-        i;
-
-    for(i = 0; i < characterImagesLength; i++) {
-        ctx.drawImage(Resources.get(this.characterImages[i]), i * spacingInterval + x, y);
     }
 };
 
@@ -579,45 +551,14 @@ PauseScreen.prototype.drawEscapeMessage = function(y) {
     ctx.drawImage(Resources.get('images/esc-icon.png'), ctx.canvas.width/2 - 72, y-34);
 };
 
-/**
- * This function is called by the event listener that is listening for keyUp events when the game is
- * considered 'paused'.  Based on which key was pressed either a new character is selected or a game mode
- * is enabled/disabled.
- *
- * @param {string} input - the string representation of the key that the user pressed
- */
-PauseScreen.prototype.handleInput = function (input) {
-    switch (input) {
-        case 'left':
-            if(this.characterSelection > 0) {
-                this.characterSelection--;
-            }
-            break;
-        case 'right':
-            if(this.characterSelection < this.characterImages.length-1) {
-                this.characterSelection++;
-            }
-            break;
-        case 'one':
-            gameProperties.toggleColouredTileMode();
-            break;
-        case 'two':
-            gameProperties.toggleCollectiblesMode();
-            break;
-        case 'three':
-            gameProperties.toggleAlternateDirectionsMode();
-            break;
-    }
-};
-
-/**
- * Gets the URL of the image for the selected character
- *
- * @returns {string} - image URL of the selected character
- */
-PauseScreen.prototype.getSelectedCharacterImageURL = function() {
-    return this.characterImages[this.characterSelection];
-};
+///**
+// * Gets the URL of the image for the selected character
+// *
+// * @returns {string} - image URL of the selected character
+// */
+//PauseScreen.prototype.getSelectedCharacterImageURL = function() {
+//    return this.characterImages[this.characterSelection];
+//};
 
 var InfoScreen = function() {};
 
@@ -709,6 +650,15 @@ var GameProperties = function() {
     this.consecutiveSuccesses = 0;
     this.showInfo = false;
     this.showPoints = [];
+
+    this.characterSelection = 0;
+    this.characterImages = [
+        'images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png'
+    ];
 
     this.sounds = {
         enemyCollision: new Audio('sounds/crunch.wav'),
@@ -871,6 +821,7 @@ GameProperties.prototype.addPoints = function(row, column, points) {
 
 /**
  * Removes the added/subtracted game points from being shown when their counters reach 0.
+ * Updates the player character image with selection if the game is paused.
  */
 GameProperties.prototype.update = function() {
     var i = this.showPoints.length - 1;
@@ -878,6 +829,9 @@ GameProperties.prototype.update = function() {
         if(this.showPoints[i].counter <= 0) {
             this.showPoints.splice(i, 1);
         }
+    }
+    if(this.pauseGame) {
+        player.setCharacter(this.getSelectedCharacterImageURL());
     }
 };
 
@@ -963,6 +917,64 @@ GameProperties.prototype._renderGamePoints = function() {
     }
 };
 
+/**
+ * Draw the characters available for selection.
+ *
+ * @param {number} x - the canvas x-coordinate of the left-most character image
+ * @param {number} y - the canvas x-coordinate of all the character images
+ * @param {number} spacingInterval - the x-coordinate interval to use to evenly space the character images
+ */
+GameProperties.prototype.drawCharacterSelect = function(x, y, spacingInterval) {
+    ctx.drawImage(Resources.get('images/Selector.png'), this.characterSelection * spacingInterval + x, y);
+
+    var characterImagesLength = this.characterImages.length,
+        i;
+
+    for(i = 0; i < characterImagesLength; i++) {
+        ctx.drawImage(Resources.get(this.characterImages[i]), i * spacingInterval + x, y);
+    }
+};
+
+/**
+ * Gets the URL of the image for the selected character
+ *
+ * @returns {string} - image URL of the selected character
+ */
+GameProperties.prototype.getSelectedCharacterImageURL = function() {
+    return this.characterImages[this.characterSelection];
+};
+
+/**
+ * This function is called by the event listener that is listening for keyUp events when the game is
+ * considered 'paused'.  Based on which key was pressed either a new character is selected or a game mode
+ * is enabled/disabled.
+ *
+ * @param {string} input - the string representation of the key that the user pressed
+ */
+GameProperties.prototype.handleInput = function (input) {
+    switch (input) {
+        case 'left':
+            if(this.characterSelection > 0) {
+                this.characterSelection--;
+            }
+            break;
+        case 'right':
+            if(this.characterSelection < this.characterImages.length-1) {
+                this.characterSelection++;
+            }
+            break;
+        case 'one':
+            this.toggleColouredTileMode();
+            break;
+        case 'two':
+            this.toggleCollectiblesMode();
+            break;
+        case 'three':
+            this.toggleAlternateDirectionsMode();
+            break;
+    }
+};
+
 gameProperties = new GameProperties();
 pauseScreen = new PauseScreen();
 infoScreen = new InfoScreen();
@@ -974,7 +986,7 @@ infoItem = new RenderableItem(423, 507, 64, 'images/info.png');
 
 /**
  * This listens for key presses and sends the keys to the Player.handleInput() method if the game is not paused
- * or the pauseScreen.handleInput method if the game is paused.
+ * or the gameProperties.handleInput method if the game is paused.
  */
 document.addEventListener('keyup', function(e) {
     var escapeKey = 27;
@@ -993,7 +1005,7 @@ document.addEventListener('keyup', function(e) {
     }
 
     if(gameProperties.pauseGame) {
-        pauseScreen.handleInput(allowedKeys[e.keyCode]);
+        gameProperties.handleInput(allowedKeys[e.keyCode]);
     }
     else {
         player.handleInput(allowedKeys[e.keyCode]);
