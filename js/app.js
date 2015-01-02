@@ -272,10 +272,6 @@ Enemy.prototype.reverseEnemyImage = function() {
  */
 var Player = function() {
     MovableItem.call(this, 202, 380, 31, 48);
-    this.collideSound = new Audio('sounds/crunch.wav');
-    this.splashSound = new Audio('sounds/water-splash.wav');
-    this.collectSound = new Audio('sounds/ding.mp3');
-    this.resetWalkingArray();
 };
 
 Player.inheritsFrom(MovableItem);
@@ -288,11 +284,11 @@ Player.inheritsFrom(MovableItem);
 Player.prototype.update = function() {
     this._checkEnemyCollisions();
     this._checkCollectibleCollisions();
-    this._updateWalkingArray();
+    this._checkPlayerLocation();
 };
 
 /**
- * Check to see if the Player collides with an enemy.  If so, play collision sound and reset game.
+ * Check to see if the Player collides with an enemy.  If so, notify GameProperties object
  *
  * @private
  */
@@ -301,16 +297,15 @@ Player.prototype._checkEnemyCollisions = function() {
 
     for(var i = 0; i < allEnemiesLength; i++) {
         if(allEnemies[i].collidingWith(this)) {
-            this.collideSound.play();
-            gameProperties.reset();
+            gameProperties.playerCollidedWithEnemy();
             break;
         }
     }
 };
 
 /**
- * Check to see if the player has picked up any collectibles.  If so, play collectible collision sound, add
- * points and set the collectible to a new location.
+ * Check to see if the player has picked up any collectibles.  If so, notify GameProperties object
+ * and set the collectible to a new location.
  *
  * @private
  */
@@ -322,53 +317,27 @@ Player.prototype._checkCollectibleCollisions = function () {
         var collectible = collectibles[i];
 
         if(collectible.collidingWith(this)) {
-            this.collectSound.play();
-            gameProperties.addPoints(this.onRow(), this.onColumn(), collectible.points);
+            gameProperties.playerCollectedItem(this.onRow(), this.onColumn(), collectible.points);
             collectibleManager.resetCollectible();
         }
     }
 };
 
 /**
- * If coloured Tile mode is on then update the state of the walking array and add any points for new tiles that
- * are walked on.  If all walkable tiles are walked on then add 200 bonus points.
+ * If player walked on a tile that could award points, notify gameProperties to check to see if any points
+ * should be added and displayed
  *
  * @private
  */
-Player.prototype._updateWalkingArray = function() {
-    if(gameProperties.colouredTileModeOn) {
-        if (this.onRow() < 3) {
-            // if the tile the player is on hasn't been walked on before, add it to the array and add 10 points
-            if (this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
-                gameProperties.addPoints(this.onRow(), this.onColumn(), 10);
-                this.walkedSuccess[this.onRow()].push(this.onColumn());
-            }
-
-            // if all tiles have been walked on, then add 200 points and reset the walking array
-            if (this.walkedSuccess[0] && this.walkedSuccess[0].length == 5 &&
-                this.walkedSuccess[1] && this.walkedSuccess[1].length == 5 &&
-                this.walkedSuccess[2] && this.walkedSuccess[2].length == 5) {
-                gameProperties.addPoints(this.onRow(), this.onColumn(), 200);
-                player.resetWalkingArray();
-            }
-        }
-    }
-    else {
-        // if coloured tile mode is not on, ensure the walking array is clear
-        this.resetWalkingArray();
+Player.prototype._checkPlayerLocation = function() {
+    // if the player is on a row from 0-2 then they are on a stone tile row
+    if (this.onRow() < 3) {
+        gameProperties.playerWalkedOnStoneTile(this.onRow(), this.onColumn());
     }
 };
 
 Player.prototype.reset = function() {
-    this.resetWalkingArray();
     this.resetPosition();
-};
-
-Player.prototype.resetWalkingArray = function() {
-    this.walkedSuccess = [];
-    for(var i = 0; i < 3; i++) {
-        this.walkedSuccess.push([]);
-    }
 };
 
 Player.prototype.handleInput = function(input) {
@@ -408,7 +377,6 @@ Player.prototype.hasReachedTopRow = function() {
 Player.prototype.moveUp = function() {
 
     if(this.hasReachedTopRow()) {
-        this.splashSound.play();
         gameProperties.playerReachedTopRow(this.onColumn());
         this.resetPosition();
     } else {
@@ -741,9 +709,24 @@ var GameProperties = function() {
     this.consecutiveSuccesses = 0;
     this.showInfo = false;
     this.showPoints = [];
+
+    this.sounds = {
+        enemyCollision: new Audio('sounds/crunch.wav'),
+        splash: new Audio('sounds/water-splash.wav'),
+        collect: new Audio('sounds/ding.mp3')
+    };
+
     this.colouredTileModeOn = false;
     this.collectiblesOn = false;
     this.alternateDirectionsOn = false;
+
+    //this.modesOn = {
+    //    colouredTiles: false,
+    //    collectibles: false,
+    //    alternateDirections: false
+    //};
+
+    this._resetWalkingArray();
 };
 
 /**
@@ -792,7 +775,58 @@ GameProperties.prototype.reset = function() {
     }
     this.consecutiveSuccesses = 0;
     this.currentGamePoints = 0;
+    this._resetWalkingArray();
     player.reset();
+};
+
+/**
+ * The player collided with an enemy; play collision sound and reset game.
+ */
+GameProperties.prototype.playerCollidedWithEnemy = function() {
+    this.sounds.enemyCollision.play();
+    this.reset();
+};
+
+/**
+ * Check to see if the player has picked up any collectibles.  If so, play collectible collision sound, add
+ * points and set the collectible to a new location.
+ */
+GameProperties.prototype.playerCollectedItem = function (row, column, points) {
+    this.sounds.collect.play();
+    this.addPoints(row, column, points);
+};
+
+/**
+ * If coloured Tile mode is on then update the state of the walking array and add any points for new tiles that
+ * are walked on.  If all walkable tiles are walked on then add 200 bonus points.
+ */
+GameProperties.prototype.playerWalkedOnStoneTile = function(row, column) {
+    if(this.colouredTileModeOn) {
+        // if the tile the player is on hasn't been walked on before, add it to the array and add 10 points
+        if (this.walkedSuccess[row].indexOf(column) == -1) {
+            this.addPoints(row, column, 10);
+            this.walkedSuccess[row].push(column);
+        }
+
+        // if all tiles have been walked on, then add 200 points and reset the walking array
+        if (this.walkedSuccess[0] && this.walkedSuccess[0].length == 5 &&
+            this.walkedSuccess[1] && this.walkedSuccess[1].length == 5 &&
+            this.walkedSuccess[2] && this.walkedSuccess[2].length == 5) {
+            this.addPoints(row, column, 200);
+            this._resetWalkingArray();
+        }
+    }
+    else {
+        // if coloured tile mode is not on, ensure the walking array is clear
+        this._resetWalkingArray();
+    }
+};
+
+GameProperties.prototype._resetWalkingArray = function() {
+    this.walkedSuccess = [];
+    for(var i = 0; i < 3; i++) {
+        this.walkedSuccess.push([]);
+    }
 };
 
 /**
@@ -802,6 +836,8 @@ GameProperties.prototype.reset = function() {
  * @param {number} column - the column where the player reached the top row
  */
 GameProperties.prototype.playerReachedTopRow = function(column) {
+    this.sounds.splash.play();
+
     if(this.pointsTrackingModesOn()) {
         // lose 30 points for going in the water
         this.addPoints(0, column, -30);
@@ -851,6 +887,22 @@ GameProperties.prototype.update = function() {
 GameProperties.prototype.render = function() {
     this._renderNewPoints();
     this._renderGamePoints();
+};
+
+/**
+ * Render the coloured tiles for a row if the Coloured Tile Mode is on
+ *
+ * @param row - the row for the coloured tiles to be rendered (first row = 0)
+ */
+GameProperties.prototype.renderColouredTilesForRow = function(row) {
+    if(this.colouredTileModeOn) {
+        if(this.walkedSuccess[row]) {
+            console.log('row: '+row.toString());
+            this.walkedSuccess[row].forEach(function (column) {
+                ctx.drawImage(Resources.get('images/stone-block-highlight.png'), column * 101, (row + 1) * 83);
+            });
+        }
+    }
 };
 
 /**

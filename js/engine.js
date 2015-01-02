@@ -94,6 +94,7 @@ var Engine = (function(global) {
      */
     function updateEntities(dt) {
         if(gameProperties.pauseGame) {
+            //TODO: move getSelectedCharacter to GameProperties
             player.setCharacter(pauseScreen.getSelectedCharacterImageURL());
         }
         else {
@@ -104,6 +105,7 @@ var Engine = (function(global) {
             gameProperties.update();
         }
 
+        //TODO: move this to GameProperties
         if(gameProperties.collectiblesOn) {
             collectibleManager.update();
         }
@@ -163,16 +165,15 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                if(gameProperties.colouredTileModeOn &&
-                    player.walkedSuccess[row-1] &&
-                    player.walkedSuccess[row-1].indexOf(col) >= 0) {
-                    //TODO: this should probably moved to the render method of something
-                    //else like the player class
-                    ctx.drawImage(Resources.get('images/stone-block-highlight.png'), col * 101, row * 83);
-                }
-                else {
-                    ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
-                }
+                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+            }
+            /* If certain game modes are on, the background tiles change colour; render these
+             * per row so that the next row is rendered on top of these coloured tiles.
+             * The first stone row is expected to be 0; the first stone row is in element 1 so
+             * row needs to be subtracted from by 1
+             */
+            if(gameProperties) {
+                gameProperties.renderColouredTilesForRow(row-1);
             }
         }
     }
