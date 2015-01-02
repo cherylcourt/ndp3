@@ -125,6 +125,9 @@ var Engine = (function(global) {
 
     }
 
+    /**
+     * Clear the canvas and render the tiles that make up the background.
+     */
     function renderBackground() {
         /* Clear the canvas so that any images drawn at the top of the canvas
          * are cleared before the next 'screen' is rendered so that they are

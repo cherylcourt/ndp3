@@ -173,7 +173,7 @@ Enemy.prototype.update = function(dt) {
     else {
         // if the enemy runs off the screen, reset the enemy so that it can
         // appear on the screen again
-        if (this.x > canvas.width + 2) {
+        if (this.x > ctx.canvas.width + 2) {
             this.reset();
         }
         // any movement is multiplied by the dt parameter to ensure the game
@@ -209,7 +209,7 @@ Enemy.prototype.reset = function() {
 Enemy.prototype.resetPosition = function() {
     this.y = this.generateYPosition();
     if (this.isReversedEnemy()) {
-        this.x = canvas.width + 2;
+        this.x = ctx.canvas.width + 2;
     }
     else {
         this.x = this.startingXPosition;
@@ -368,7 +368,7 @@ Player.prototype.moveLeft = function() {
 };
 
 Player.prototype.moveRight = function() {
-    if(this.x + this.HORIZONTAL_TILE_WIDTH < canvas.width) {
+    if(this.x + this.HORIZONTAL_TILE_WIDTH < ctx.canvas.width) {
         this.x += this.HORIZONTAL_TILE_WIDTH;
     }
 };
@@ -458,12 +458,12 @@ var Screen = function() {
 Screen.prototype.renderOverlay = function() {
     ctx.globalAlpha = this.alpha;
     ctx.fillStyle = 'black';
-    ctx.fillRect(10, 60, canvas.width - 20, canvas.height - 90);
+    ctx.fillRect(10, 60, ctx.canvas.width - 20, ctx.canvas.height - 90);
     ctx.globalAlpha = 1;
 
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
-    ctx.strokeRect(10, 60, canvas.width - 20, canvas.height - 90);
+    ctx.strokeRect(10, 60, ctx.canvas.width - 20, ctx.canvas.height - 90);
 };
 
 /**
@@ -514,9 +514,9 @@ PauseScreen.inheritsFrom(Screen);
 PauseScreen.prototype.render = function() {
     if(gameProperties.pauseGame) {
         this.renderOverlay();
-        this.drawTitle('SELECT A CHARACTER', canvas.width/2, 100);
+        this.drawTitle('SELECT A CHARACTER', ctx.canvas.width/2, 100);
         this.drawCharacterSelect(21, 115, 90);
-        this.drawTitle('GAME MODES', canvas.width/2, 330);
+        this.drawTitle('GAME MODES', ctx.canvas.width/2, 330);
         this.drawGameModeText('images/1-icon.png', 'Coloured Tile', gameProperties.colouredTileModeOn, 337);
         this.drawGameModeText('images/2-icon.png', 'Collectibles', gameProperties.collectiblesOn, 397);
         this.drawGameModeText('images/3-icon.png', 'Alternate Directions', gameProperties.alternateDirectionsOn, 457);
@@ -579,8 +579,8 @@ PauseScreen.prototype.drawEscapeMessage = function(y) {
     ctx.fillStyle = 'white';
     ctx.font = '20pt Nunito, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Press      to play game', canvas.width/2, y);
-    ctx.drawImage(Resources.get('images/esc-icon.png'), canvas.width/2 - 72, y-34);
+    ctx.fillText('Press      to play game', ctx.canvas.width/2, y);
+    ctx.drawImage(Resources.get('images/esc-icon.png'), ctx.canvas.width/2 - 72, y-34);
 };
 
 /**
@@ -629,25 +629,26 @@ InfoScreen.inheritsFrom(Screen);
 
 InfoScreen.prototype.render = function() {
     if(gameProperties.showInfo) {
-        infoTextX = 30;
-        startingInfoTextY = 100;
+        var infoTextX = 30,
+            startingInfoTextY = 100;
+
         this.renderOverlay();
 
-        this.drawTitle("Basic Gameplay", canvas.width / 2, startingInfoTextY);
+        this.drawTitle("Basic Gameplay", ctx.canvas.width / 2, startingInfoTextY);
         this.infoText("See how many times you can reach the water", infoTextX, startingInfoTextY + 25);
         this.infoText("without being hit by a bug.", infoTextX, startingInfoTextY + 50);
 
-        this.drawTitle("Coloured Tile Mode", canvas.width / 2, startingInfoTextY + 100);
+        this.drawTitle("Coloured Tile Mode", ctx.canvas.width / 2, startingInfoTextY + 100);
         this.infoText("See how many tiles you can walk on without", infoTextX, startingInfoTextY + 125);
         this.infoText("being hit by a bug. Each tile is 10 pts, going in", infoTextX, startingInfoTextY + 150);
         this.infoText("the water is -30 pts and getting all tiles is 200.", infoTextX, startingInfoTextY + 175);
 
-        this.drawTitle("Collectibles Mode", canvas.width / 2, startingInfoTextY + 225);
+        this.drawTitle("Collectibles Mode", ctx.canvas.width / 2, startingInfoTextY + 225);
         this.infoText("See how many gems you can collect without", infoTextX, startingInfoTextY + 250);
         this.infoText("being hit by a bug. Going in the water is -30", infoTextX, startingInfoTextY + 275);
         this.infoText("pts, Blue: 25pts, Orange: 50pts, Green: 75 pts", infoTextX, startingInfoTextY + 300);
 
-        this.drawTitle("Alternate Directions Mode", canvas.width / 2, startingInfoTextY + 350);
+        this.drawTitle("Alternate Directions Mode", ctx.canvas.width / 2, startingInfoTextY + 350);
         this.infoText("The second row of bugs move in the other", infoTextX, startingInfoTextY + 375);
         this.infoText("direction for an added challenge.", infoTextX, startingInfoTextY + 400);
 
@@ -773,7 +774,7 @@ GameProperties.prototype.reset = function() {
  * @param {number} column - the column where the player reached the top row
  */
 GameProperties.prototype.playerReachedTopRow = function(column) {
-    if(this.colouredTileModeOn || this.collectiblesOn) {
+    if(this.pointsTrackingModesOn()) {
         // lose 30 points for going in the water
         this.addPoints(0, column, -30);
     }
@@ -782,6 +783,13 @@ GameProperties.prototype.playerReachedTopRow = function(column) {
         // of consecutive times the player has reached the water without being hit by a bug
         this.consecutiveSuccesses++;
     }
+};
+
+/**
+ * @returns {boolean} - true if any or all of the modes that track points are turned on
+ */
+GameProperties.prototype.pointsTrackingModesOn = function() {
+    return this.colouredTileModeOn || this.collectiblesOn;
 };
 
 /**
@@ -815,7 +823,6 @@ GameProperties.prototype.update = function() {
 GameProperties.prototype.render = function() {
     this._renderNewPoints();
     this._renderGamePoints();
-    this._renderConsecutiveSuccesses();
 };
 
 /**
@@ -852,29 +859,26 @@ GameProperties.prototype._renderNewPoints = function() {
  * @private
  */
 GameProperties.prototype._renderGamePoints = function() {
+    var yCoordinate = 40;
+
     ctx.fillStyle = 'white';
     ctx.font = '20pt Nunito, sans-serif';
-    if((this.colouredTileModeOn || this.collectiblesOn) && this.currentGamePoints) {
+
+    if((this.pointsTrackingModesOn()) && this.currentGamePoints) {
         ctx.textAlign = 'left';
-        ctx.fillText(this.currentGamePoints.toString()+' pts', 7, 40);
+        ctx.fillText(this.currentGamePoints.toString() + ' pts', 7, yCoordinate);
     }
 
-    if((this.colouredTileModeOn || this.collectiblesOn) && this.bestGamePoints &&
-        this.bestGamePoints > 0) {
-        ctx.font = '10pt Nunito, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('High Score', canvas.width/2, 15);
-        ctx.font = '20pt Nunito, sans-serif';
-        ctx.fillText(this.bestGamePoints.toString()+' pts', canvas.width/2, 40);
-    }
-};
-
-GameProperties.prototype._renderConsecutiveSuccesses = function() {
     if(gameProperties.consecutiveSuccesses > 0) {
-        ctx.fillStyle = 'white';
-        ctx.font = '20pt Nunito, sans-serif';
         ctx.textAlign = 'right';
-        ctx.fillText(gameProperties.consecutiveSuccesses.toString(), canvas.width - 7, 40);
+        ctx.fillText(gameProperties.consecutiveSuccesses.toString(), ctx.canvas.width - 7, yCoordinate);
+    }
+
+    if((this.pointsTrackingModesOn()) && this.bestGamePoints && this.bestGamePoints > 0) {
+        ctx.textAlign = 'center';
+        ctx.fillText(this.bestGamePoints.toString() + ' pts', ctx.canvas.width/2, yCoordinate);
+        ctx.font = '10pt Nunito, sans-serif';
+        ctx.fillText('High Score', ctx.canvas.width/2, 15);
     }
 };
 
@@ -949,7 +953,7 @@ document.addEventListener('mousedown', function(event) {
      * @returns {{x: number, y: number}} - canvas co-ordinates
      */
     var translateCoordinates = function(event) {
-        var rect = canvas.getBoundingClientRect(),
+        var rect = ctx.canvas.getBoundingClientRect(),
             x = event.pageX - rect.left,
             y = event.pageY - rect.top;
 
