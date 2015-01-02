@@ -280,36 +280,45 @@ var Player = function() {
 
 Player.inheritsFrom(MovableItem);
 
-//TODO: split the following up into smaller methods
 /**
  * Check to see if the Player collides with an enemy.
  * If coloured tile mode is on, check to see if the player has walked on a new tile.
  * If collectible mode is on, check to see if the player has collided with a collectible.
  */
 Player.prototype.update = function() {
+    this._checkEnemyCollisions();
+    this._checkCollectibleCollisions();
+    this._updateWalkingArray();
+};
 
-    var allEnemiesLength = allEnemies.length,
-        i;
+/**
+ * Check to see if the Player collides with an enemy.  If so, play collision sound and reset game.
+ *
+ * @private
+ */
+Player.prototype._checkEnemyCollisions = function() {
+    var allEnemiesLength = allEnemies.length;
 
-    for(i = 0; i < allEnemiesLength; i++) {
+    for(var i = 0; i < allEnemiesLength; i++) {
         if(allEnemies[i].collidingWith(this)) {
             this.collideSound.play();
             gameProperties.reset();
             break;
         }
     }
+};
 
-    if(this.onRow() < 3) {
-        if(gameProperties.colouredTileModeOn && this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
-            gameProperties.addPoints(this.onRow(), this.onColumn(), 10);
-            this.walkedSuccess[this.onRow()].push(this.onColumn());
-        }
-    }
-
+/**
+ * Check to see if the player has picked up any collectibles.  If so, play collectible collision sound, add
+ * points and set the collectible to a new location.
+ *
+ * @private
+ */
+Player.prototype._checkCollectibleCollisions = function () {
     var collectibles = collectibleManager.currentCollectibles;
     var collectiblesLength = collectibles.length;
 
-    for(i = 0; i < collectiblesLength; i++) {
+    for(var i = 0; i < collectiblesLength; i++) {
         var collectible = collectibles[i];
 
         if(collectible.collidingWith(this)) {
@@ -318,16 +327,35 @@ Player.prototype.update = function() {
             collectibleManager.resetCollectible();
         }
     }
+};
 
-    if (!gameProperties.colouredTileModeOn) {
-        this.resetWalkingArray();
+/**
+ * If coloured Tile mode is on then update the state of the walking array and add any points for new tiles that
+ * are walked on.  If all walkable tiles are walked on then add 200 bonus points.
+ *
+ * @private
+ */
+Player.prototype._updateWalkingArray = function() {
+    if(gameProperties.colouredTileModeOn) {
+        if (this.onRow() < 3) {
+            // if the tile the player is on hasn't been walked on before, add it to the array and add 10 points
+            if (this.walkedSuccess[this.onRow()].indexOf(this.onColumn()) == -1) {
+                gameProperties.addPoints(this.onRow(), this.onColumn(), 10);
+                this.walkedSuccess[this.onRow()].push(this.onColumn());
+            }
+
+            // if all tiles have been walked on, then add 200 points and reset the walking array
+            if (this.walkedSuccess[0] && this.walkedSuccess[0].length == 5 &&
+                this.walkedSuccess[1] && this.walkedSuccess[1].length == 5 &&
+                this.walkedSuccess[2] && this.walkedSuccess[2].length == 5) {
+                gameProperties.addPoints(this.onRow(), this.onColumn(), 200);
+                player.resetWalkingArray();
+            }
+        }
     }
-
-    if(this.walkedSuccess[0] && this.walkedSuccess[0].length == 5 &&
-        this.walkedSuccess[1] && this.walkedSuccess[1].length == 5 &&
-        this.walkedSuccess[2] && this.walkedSuccess[2].length == 5) {
-        gameProperties.addPoints(this.onRow(), this.onColumn(), 200);
-        player.resetWalkingArray();
+    else {
+        // if coloured tile mode is not on, ensure the walking array is clear
+        this.resetWalkingArray();
     }
 };
 
@@ -859,7 +887,8 @@ GameProperties.prototype._renderNewPoints = function() {
  * @private
  */
 GameProperties.prototype._renderGamePoints = function() {
-    var yCoordinate = 40;
+    var yCoordinate = 40,
+        canvasMiddle = ctx.canvas.width / 2;
 
     ctx.fillStyle = 'white';
     ctx.font = '20pt Nunito, sans-serif';
@@ -876,9 +905,9 @@ GameProperties.prototype._renderGamePoints = function() {
 
     if((this.pointsTrackingModesOn()) && this.bestGamePoints && this.bestGamePoints > 0) {
         ctx.textAlign = 'center';
-        ctx.fillText(this.bestGamePoints.toString() + ' pts', ctx.canvas.width/2, yCoordinate);
+        ctx.fillText(this.bestGamePoints.toString() + ' pts', canvasMiddle, yCoordinate);
         ctx.font = '10pt Nunito, sans-serif';
-        ctx.fillText('High Score', ctx.canvas.width/2, 15);
+        ctx.fillText('High Score', canvasMiddle, 15);
     }
 };
 
