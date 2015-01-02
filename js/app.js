@@ -713,11 +713,18 @@ var GameProperties = function() {
     this.alternateDirectionsOn = false;
 };
 
+/**
+ * Toggle the coloured tile mode on or off.  Reset points and player.
+ */
 GameProperties.prototype.toggleColouredTileMode = function() {
     this.colouredTileModeOn = !this.colouredTileModeOn;
     this.reset();
 };
 
+/**
+ * Toggle the collectibles mode on or off.  If the mode is toggled off, remove any collectibles from the screen.
+ * Reset points and player.
+ */
 GameProperties.prototype.toggleCollectiblesMode = function() {
     this.collectiblesOn = !this.collectiblesOn;
     if(!this.collectiblesOn) {
@@ -726,6 +733,11 @@ GameProperties.prototype.toggleCollectiblesMode = function() {
     this.reset();
 };
 
+/**
+ * Toggle the alternate directions mode on or off.  For every enemy that is on the second stone row reverse
+ * their image.
+ * Reset points and player.
+ */
 GameProperties.prototype.toggleAlternateDirectionsMode = function() {
     this.alternateDirectionsOn = !this.alternateDirectionsOn;
     allEnemies.forEach(function(enemy) {
