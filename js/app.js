@@ -670,13 +670,7 @@ var GameProperties = function() {
     this.collectiblesOn = false;
     this.alternateDirectionsOn = false;
 
-    //this.modesOn = {
-    //    colouredTiles: false,
-    //    collectibles: false,
-    //    alternateDirections: false
-    //};
-
-    this._resetWalkingArray();
+    this._initializeWalkingArray();
 };
 
 /**
@@ -725,7 +719,7 @@ GameProperties.prototype.reset = function() {
     }
     this.consecutiveSuccesses = 0;
     this.currentGamePoints = 0;
-    this._resetWalkingArray();
+    this._initializeWalkingArray();
     player.reset();
 };
 
@@ -763,16 +757,16 @@ GameProperties.prototype.playerWalkedOnStoneTile = function(row, column) {
             this.walkedSuccess[1] && this.walkedSuccess[1].length == 5 &&
             this.walkedSuccess[2] && this.walkedSuccess[2].length == 5) {
             this.addPoints(row, column, 200);
-            this._resetWalkingArray();
+            this._initializeWalkingArray();
         }
     }
     else {
         // if coloured tile mode is not on, ensure the walking array is clear
-        this._resetWalkingArray();
+        this._initializeWalkingArray();
     }
 };
 
-GameProperties.prototype._resetWalkingArray = function() {
+GameProperties.prototype._initializeWalkingArray = function() {
     this.walkedSuccess = [];
     for(var i = 0; i < 3; i++) {
         this.walkedSuccess.push([]);
@@ -1045,7 +1039,7 @@ document.addEventListener('mousedown', function(event) {
      * @param {object} event - mouse event
      * @returns {{x: number, y: number}} - canvas co-ordinates
      */
-    var translateCoordinates = function(event) {
+    var translateCoordinatesToCanvas = function(event) {
         var rect = ctx.canvas.getBoundingClientRect(),
             x = event.pageX - rect.left,
             y = event.pageY - rect.top;
@@ -1053,7 +1047,7 @@ document.addEventListener('mousedown', function(event) {
         return {x: x, y: y};
     };
 
-    var coordinates = translateCoordinates(event);
+    var coordinates = translateCoordinatesToCanvas(event);
 
     if(coordinatesOnInfoItem(coordinates.x, coordinates.y)) {
         gameProperties.showInfo = !gameProperties.showInfo;
