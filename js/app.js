@@ -600,10 +600,21 @@ InfoScreen.prototype.infoText = function(text, x, y) {
     ctx.fillText(text, x, y);
 };
 
+/**
+ * Holds the points information that has been recently gained/lost by the player.  Is used by the
+ * GameProperties class to display this information to the player on the tile where the points were gained/lost.
+ *
+ *
+ * @param {number} row - the row of the tile the player was on when they gained/lost these points
+ * @param {number} column - the column of the tile the player was on when they gained/lost these points
+ * @param {number} points - the amount of points that were gained/lost
+ * @constructor
+ */
 var ShowPoints = function(row, column, points) {
     this.row = row;
     this.column = column;
     this.points = points;
+    // This counter allows this object's information to be displayed for a limited time
     this.counter = 100;
 };
 
@@ -612,6 +623,7 @@ ShowPoints.prototype.render = function(offset) {
     ctx.textAlign = 'center';
     var pointsText = this.points.toString();
 
+    // points that are lost are displayed in red; gained points are in green
     if (this.points < 0) {
         ctx.fillStyle = 'red';
     }
@@ -619,6 +631,8 @@ ShowPoints.prototype.render = function(offset) {
         pointsText = '+' + pointsText;
         ctx.fillStyle = 'green';
     }
+
+    //slowly fade the points on the screen
     if (this.counter > 0) {
         ctx.globalAlpha = this.counter/100;
     }
