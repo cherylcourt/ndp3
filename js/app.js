@@ -551,19 +551,18 @@ PauseScreen.prototype.drawEscapeMessage = function(y) {
     ctx.drawImage(Resources.get('images/esc-icon.png'), ctx.canvas.width/2 - 72, y-34);
 };
 
-///**
-// * Gets the URL of the image for the selected character
-// *
-// * @returns {string} - image URL of the selected character
-// */
-//PauseScreen.prototype.getSelectedCharacterImageURL = function() {
-//    return this.characterImages[this.characterSelection];
-//};
-
+/**
+ * This object displays an information screen that describes the game when its render method is called.
+ *
+ * @constructor
+ */
 var InfoScreen = function() {};
 
 InfoScreen.inheritsFrom(Screen);
 
+/**
+ * When this method is called an information screen is displayed on the canvas, describing the game
+ */
 InfoScreen.prototype.render = function() {
     if(gameProperties.showInfo) {
         var infoTextX = 30,
@@ -593,6 +592,13 @@ InfoScreen.prototype.render = function() {
     }
 };
 
+/**
+ * Sets the properties for displaying information on the info screen and then displays the text.
+ *
+ * @param text - the information text that needs to be displayed
+ * @param x - the x co-ordinate of where the text should be displayed
+ * @param y - the y co-ordinate of where the text should be displayed
+ */
 InfoScreen.prototype.infoText = function(text, x, y) {
     ctx.fillStyle = 'white';
     ctx.font = '15pt Nunito, sans-serif';
@@ -618,6 +624,12 @@ var ShowPoints = function(row, column, points) {
     this.counter = 100;
 };
 
+/**
+ * Display the points on the canvas where the player lost or gained them
+ *
+ * @param offset - an offset to apply to where the points should be displayed in relation to the center of the
+ *                 tile where they were gained/lost
+ */
 ShowPoints.prototype.render = function(offset) {
     ctx.font = '25pt Nunito, sans-serif';
     ctx.textAlign = 'center';
