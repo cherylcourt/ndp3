@@ -443,6 +443,11 @@ CollectibleManager.prototype.removeCollectibles = function () {
     this.currentCollectibles = [];
 };
 
+/**
+ * The base class for any rendered screens in the game.
+ *
+ * @constructor
+ */
 var Screen = function() {
    this.alpha = 1;
 };
@@ -792,6 +797,12 @@ GameProperties.prototype.playerWalkedOnStoneTile = function(row, column) {
     }
 };
 
+/**
+ * Initializes the array that holds the position of the tiles that the player has successfully walked on
+ * to an empty array
+ *
+ * @private
+ */
 GameProperties.prototype._initializeWalkingArray = function() {
     this.walkedSuccess = [];
     for(var i = 0; i < 3; i++) {
