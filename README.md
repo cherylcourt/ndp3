@@ -64,18 +64,20 @@ There is no further objective with this mode; it simply adds a further layer of 
 reverses direction of the second row of bugs.
 
 
-References
-----------
+Asset References
+----------------
 
 Royalty-free sounds were taken from [freesound.org](http://www.freesound.org)
 
 Keyboard image icons obtained from [megaicons.net](http://megaicons.net/)
-- Icons by chromatix
 
 Info icon obtained from [findicons.com](http://findicons.com/icon/211717/info)
 
 Further information regarding image and sound attribution can be found in attribution.html, which is linked to
 from the main page.
+
+Coding References
+-----------------
 
 - Udacity: Object-Oriented JavaScript 
 - Udacity: HTML5 Canvas
