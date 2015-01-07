@@ -711,13 +711,13 @@ InfoScreen.prototype.infoText = function(text, x, y) {
  * @constructor
  */
 var ShowPoints = function(row, column, points) {
-    GameItem.call(this);
-
     this.row = row;
     this.column = column;
     this.points = points;
     // This counter allows this object's information to be displayed for a limited time
     this.counter = 100;
+
+    GameItem.call(this);
 };
 
 ShowPoints.inheritsFrom(GameItem);
