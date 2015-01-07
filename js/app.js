@@ -137,13 +137,7 @@ MovableItem.prototype.resetPosition = function() {
  */
 var Enemy = function() {
     this.verticalBuffer = 57;
-
-    MovableItem.call(this,
-        -102,
-        this.generateYPosition(),
-        86,
-        this.verticalBuffer);
-
+    MovableItem.call(this, -102, this.generateYPosition(), 86, this.verticalBuffer);
     this.setSpeed();
 };
 
@@ -160,6 +154,10 @@ Enemy.prototype.generateYPosition = function() {
 
 /**
  * Updates the enemy position based on the direction it is moving as well as its speed
+ *
+ * Note: this could be improved by creating an Enemy factory that creates either an enemy that moves
+ *   to the left or the right with the appropriate method calls for each, but this would require a
+ *   major refactoring and would affect the entire Enemy class
  *
  * @param {number} dt - a time delta between ticks
  */
