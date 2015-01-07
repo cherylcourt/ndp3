@@ -2,6 +2,7 @@ frontend-nanodegree-arcade-game
 ===============================
 
 To play the game, do the following:
+
 1. Clone this repository
 2. Navigate to your local copy of index.html through your web browser 
 (note: this has only been tested in Chrome - Version 39.0.2171.95 (64-bit))
