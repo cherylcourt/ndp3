@@ -1110,14 +1110,58 @@ GameProperties.prototype.handleInput = function (input) {
     }
 };
 
+/**
+ * Global Game Objects
+ * ===================
+ */
+
+/**
+ * global GameProperties object
+ *
+ * @type {GameProperties}
+ */
 gameProperties = new GameProperties();
+
+/**
+ * global PauseScreen object
+ * @type {PauseScreen}
+ */
 pauseScreen = new PauseScreen();
+
+/**
+ * global InfoScreen object
+ * @type {InfoScreen}
+ */
 infoScreen = new InfoScreen();
+
+/**
+ * global enemy array
+ * @type {*[]}
+ */
 allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy(), new Enemy()];
+
+/**
+ * global object managing collectibles on the screen
+ * @type {CollectibleManager}
+ */
 collectibleManager = new CollectibleManager(3, 5);
+
+/**
+ * global player object
+ * @type {Player}
+ */
 player = new Player();
+
+/**
+ * global info Item image object
+ * @type {RenderableItem}
+ */
 infoItem = new RenderableItem(423, 507, 64, 'images/info.png');
 
+/**
+ * Event Listeners
+ * ===============
+ */
 
 /**
  * This listens for key presses and sends the keys to the Player.handleInput() method if the game is not paused
