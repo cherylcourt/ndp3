@@ -1,4 +1,16 @@
 /**
+ * Base class that contains the tile width and height information needed for determining where to render
+ * things on the screen; should be inherited from by any class that needs this information for rendering
+ * purposes.
+ *
+ * @constructor
+ */
+var GameItem = function() {
+    this.HORIZONTAL_TILE_WIDTH = 101;
+    this.VISIBLE_VERTICAL_TILE_HEIGHT = 83;
+};
+
+/**
  * Base class that represents an item displayed on the screen that has a location and visible width and height
  *
  * @param {number} x - x coordinate position on the canvas of this item
@@ -19,6 +31,8 @@ var RenderableItem = function(x, y, width, sprite) {
         this.sprite = 'images/blank-tile.png';
     }
 };
+
+RenderableItem.inheritsFrom(GameItem);
 
 /**
  * This is the function that is called by the game engine to render this item on the screen.
@@ -41,8 +55,6 @@ RenderableItem.prototype.render = function() {
  */
 var MovableItem = function(x, y, width, verticalBuffer, sprite) {
     RenderableItem.call(this, x, y, width, sprite);
-    this.HORIZONTAL_TILE_WIDTH = 101;
-    this.VISIBLE_VERTICAL_TILE_HEIGHT = 83;
 
     this.startingXPosition = x;
     this.startingYPosition = y;
@@ -137,7 +149,7 @@ MovableItem.prototype.resetPosition = function() {
  */
 var Enemy = function() {
     this.verticalBuffer = 57;
-    MovableItem.call(this, -102, this.generateYPosition(), 86, this.verticalBuffer);
+    MovableItem.call(this, this._leftMostXPosition(), this.generateYPosition(), 86, this.verticalBuffer);
     this.setSpeed();
 };
 
@@ -153,6 +165,22 @@ Enemy.prototype.generateYPosition = function() {
 };
 
 /**
+ * @returns {number} - the left most x co-ordinate an enemy can be located at
+ * @private
+ */
+Enemy.prototype._leftMostXPosition = function() {
+    return -this.HORIZONTAL_TILE_WIDTH-2;
+};
+
+/**
+ * @returns {number} - the right most x co-ordinate an enemy can be located at
+ * @private
+ */
+Enemy.prototype._rightMostXPosition = function() {
+    return ctx.canvas.width + 2;
+};
+
+/**
  * Updates the enemy position based on the direction it is moving as well as its speed
  *
  * Note: this could be improved by creating an Enemy factory that creates either an enemy that moves
@@ -163,7 +191,7 @@ Enemy.prototype.generateYPosition = function() {
  */
 Enemy.prototype.update = function(dt) {
     if (this.isReversedEnemy()) {
-        if (this.x < -102) {
+        if (this.x < this._leftMostXPosition()) {
             this.reset();
         }
         this.x -= this.speed * dt;
@@ -171,7 +199,7 @@ Enemy.prototype.update = function(dt) {
     else {
         // if the enemy runs off the screen, reset the enemy so that it can
         // appear on the screen again
-        if (this.x > ctx.canvas.width + 2) {
+        if (this.x > this._rightMostXPosition()) {
             this.reset();
         }
         // any movement is multiplied by the dt parameter to ensure the game
@@ -207,7 +235,7 @@ Enemy.prototype.reset = function() {
 Enemy.prototype.resetPosition = function() {
     this.y = this.generateYPosition();
     if (this.isReversedEnemy()) {
-        this.x = ctx.canvas.width + 2;
+        this.x = this._rightMostXPosition();
     }
     else {
         this.x = this.startingXPosition;
@@ -401,7 +429,6 @@ Player.prototype._moveUp = function() {
  * @private
  */
 Player.prototype._hasReachedTopRow = function() {
-    //return this.y <= this.VISIBLE_VERTICAL_TILE_HEIGHT;
     return this.onRow() == 0;
 };
 
@@ -467,6 +494,8 @@ var CollectibleManager = function(usableGameRows, usableGameColumns) {
     }
 };
 
+CollectibleManager.inheritsFrom(GameItem);
+
 /**
  * Move collectible to a new position
  */
@@ -474,8 +503,8 @@ CollectibleManager.prototype.resetCollectible = function() {
     var collectibleSelection = Math.floor(Math.random() * this.availableCollectibles.length);
     var sprite = this.availableCollectibles[collectibleSelection].sprite;
     var points = this.availableCollectibles[collectibleSelection].points;
-    var x = Math.floor(Math.random() * this.columns) * 101;
-    var y = (Math.floor(Math.random() * this.rows) + 1) * 83;
+    var x = Math.floor(Math.random() * this.columns) * this.HORIZONTAL_TILE_WIDTH;
+    var y = (Math.floor(Math.random() * this.rows) + 1) * this.VISIBLE_VERTICAL_TILE_HEIGHT;
 
     if(this.currentCollectibles.length != 0) {
        this.currentCollectibles.pop();
@@ -685,6 +714,8 @@ var ShowPoints = function(row, column, points) {
     this.counter = 100;
 };
 
+ShowPoints.inheritsFrom(GameItem);
+
 /**
  * Display the points on the canvas where the player lost or gained them
  *
@@ -713,12 +744,15 @@ ShowPoints.prototype.render = function(offset) {
         ctx.globalAlpha = 0;
     }
 
+    var x = this.column * this.HORIZONTAL_TILE_WIDTH + (this.HORIZONTAL_TILE_WIDTH/2);
+    var y = this.row * 130 + this.counter;
+
     if(offset) {
-        ctx.fillText(pointsText, this.column * 101 + 50.5 - offset, this.row * 130 + this.counter - offset);
+        x -= offset;
+        y -= offset;
     }
-    else {
-        ctx.fillText(pointsText, this.column * 101 + 50.5, this.row * 130 + this.counter);
-    }
+
+    ctx.fillText(pointsText, x, y);
 
     ctx.globalAlpha = 1;
     this.counter--;
