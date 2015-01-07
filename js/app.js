@@ -765,6 +765,8 @@ ShowPoints.prototype.render = function(offset) {
  * @constructor
  */
 var GameProperties = function() {
+    GameItem.call(this);
+
     this.pauseGame = true;
     this.currentGamePoints = 0;
     this.bestGamePoints = 0;
@@ -793,6 +795,8 @@ var GameProperties = function() {
 
     this._initializeWalkingArray();
 };
+
+GameProperties.inheritsFrom(GameItem);
 
 /**
  * Toggle the coloured tile mode on or off.  Reset points and player.
@@ -970,11 +974,15 @@ GameProperties.prototype.render = function() {
  * @param row - the row for the coloured tiles to be rendered (first row = 0)
  */
 GameProperties.prototype.renderColouredTilesForRow = function(row) {
+    var width = this.HORIZONTAL_TILE_WIDTH,
+        height = this.VISIBLE_VERTICAL_TILE_HEIGHT;
+
     if(this.colouredTileModeOn) {
         if(this.walkedSuccess[row]) {
-            console.log('row: '+row.toString());
             this.walkedSuccess[row].forEach(function (column) {
-                ctx.drawImage(Resources.get('images/stone-block-highlight.png'), column * 101, (row + 1) * 83);
+                var x = column * width;
+                var y = (row + 1) * height;
+                ctx.drawImage(Resources.get('images/stone-block-highlight.png'), x, y);
             });
         }
     }
