@@ -20,6 +20,8 @@ var GameItem = function() {
  * @constructor
  */
 var RenderableItem = function(x, y, width, sprite) {
+    GameItem.call(this);
+
     this.x = x;
     this.y = y;
     this.width = width;
@@ -478,6 +480,8 @@ Collectible.inheritsFrom(MovableItem);
  * @constructor
  */
 var CollectibleManager = function(usableGameRows, usableGameColumns) {
+    GameItem.call(this);
+
     this.rows = usableGameRows;
     this.columns = usableGameColumns;
 
@@ -707,6 +711,8 @@ InfoScreen.prototype.infoText = function(text, x, y) {
  * @constructor
  */
 var ShowPoints = function(row, column, points) {
+    GameItem.call(this);
+
     this.row = row;
     this.column = column;
     this.points = points;
