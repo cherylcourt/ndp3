@@ -766,7 +766,7 @@ ShowPoints.prototype.render = function(offset) {
 /**
  * Decrement the counter so that the points slowly move upwards and fade away
  *
- * @param dt - - a time delta between ticks
+ * @param dt - a time delta between ticks
  */
 ShowPoints.prototype.update = function(dt) {
     this.counter -= this.counter * dt;
