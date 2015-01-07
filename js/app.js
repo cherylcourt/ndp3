@@ -761,7 +761,15 @@ ShowPoints.prototype.render = function(offset) {
     ctx.fillText(pointsText, x, y);
 
     ctx.globalAlpha = 1;
-    this.counter--;
+};
+
+/**
+ * Decrement the counter so that the points slowly move upwards and fade away
+ *
+ * @param dt - - a time delta between ticks
+ */
+ShowPoints.prototype.update = function(dt) {
+    this.counter -= this.counter * dt;
 };
 
 /**
@@ -954,7 +962,7 @@ GameProperties.prototype.addPoints = function(row, column, points) {
  * Removes the added/subtracted game points from being shown when their counters reach 0.
  * Updates the player character image with selection if the game is paused.
  */
-GameProperties.prototype.update = function() {
+GameProperties.prototype.update = function(dt) {
     var i = this.showPoints.length - 1;
     for(; i >= 0; i--) {
         if(this.showPoints[i].counter <= 0) {
@@ -964,6 +972,10 @@ GameProperties.prototype.update = function() {
     if(this.pauseGame) {
         player.setCharacter(this.getSelectedCharacterImageURL());
     }
+
+    this.showPoints.forEach(function(showPoint) {
+        showPoint.update(dt);
+    });
 };
 
 /**

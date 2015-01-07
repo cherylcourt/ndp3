@@ -93,7 +93,7 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        gameProperties.update();
+        gameProperties.update(dt);
         if(!gameProperties.pauseGame) {
             allEnemies.forEach(function(enemy) {
                 enemy.update(dt);
