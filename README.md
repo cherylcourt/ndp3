@@ -37,12 +37,14 @@ coded based on their speed with Blue being the slowest and Green being the faste
 
 #### No modes
 **Objective**: jump in the water as many times as possible
+
 There is a counter in the upper right hand corner of the screen that keeps track of the number of times you've jumped 
 in the water without getting hit by a bug.  If the player gets hit by a bug at any point the game resets; the player is
 put back at the starting position and the counter is reset.
 
 #### Coloured Tiles
 **Objective**: get as many points as possible
+
 Points are tracked in the upper left hand corner of the screen.  For each unique tile the player steps on, 10 points 
 are added and the tile changes colour; when all tiles are stepped on there are 200 bonus points 
 added and all tiles are reset. Jumping in the water in this mode subtracts 30 points from
@@ -51,6 +53,7 @@ position and if the current score is higher than any previous score it is shown 
 
 #### Collectibles
 **Objective**: get as many points as possible
+
 Points are tracked in the upper left hand corner of the screen.  There are three different coloured gems that appear on
 the stone tiles that can be collected for points. Jumping in the water in this mode subtracts 30 points from
 the total.  If the player gets hit by a bug at any point the game resets; the player is put back at the starting 
