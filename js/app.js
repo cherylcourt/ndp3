@@ -75,12 +75,12 @@ MovableItem.prototype.visibleRight = function() {
 };
 
 /**
- * @returns {number} - the row that this item currently occupies; numbering starts at 0 from the top row
+ * @returns {number} - the row that this item currently occupies; numbering starts at 0 from the top stone row
  */
 MovableItem.prototype.onRow = function() {
     var adjustedY = this.y - this.rowAdjust;
     if (adjustedY != 0) {
-        return Math.floor((this.y - this.rowAdjust) / this.VISIBLE_VERTICAL_TILE_HEIGHT);
+        return Math.floor(adjustedY / this.VISIBLE_VERTICAL_TILE_HEIGHT);
     }
     else {
         return 0;
@@ -336,47 +336,59 @@ Player.prototype._checkPlayerLocation = function() {
     }
 };
 
-Player.prototype.reset = function() {
-    this.resetPosition();
-};
-
+/**
+ * Handles input from the user that has been translated into available player moves.
+ *
+ * @param input - a string representation of available player moves
+ */
 Player.prototype.handleInput = function(input) {
     switch (input) {
         case 'left':
-            this.moveLeft();
+            this._moveLeft();
             break;
         case 'up':
-            this.moveUp();
+            this._moveUp();
             break;
         case 'right':
-            this.moveRight();
+            this._moveRight();
             break;
         case 'down':
-            this.moveDown();
+            this._moveDown();
             break;
     }
-
 };
 
-Player.prototype.moveLeft = function() {
+/**
+ * Moves the player to the tile to the left if the player is not on the left-most tile
+ *
+ * @private
+ */
+Player.prototype._moveLeft = function() {
     if(this.x >= this.HORIZONTAL_TILE_WIDTH) {
         this.x -= this.HORIZONTAL_TILE_WIDTH;
     }
 };
 
-Player.prototype.moveRight = function() {
+/**
+ * Moves the player to the right if the player is not on the right-most tile.
+ *
+ * @private
+ */
+Player.prototype._moveRight = function() {
     if(this.x + this.HORIZONTAL_TILE_WIDTH < ctx.canvas.width) {
         this.x += this.HORIZONTAL_TILE_WIDTH;
     }
 };
 
-Player.prototype.hasReachedTopRow = function() {
-    return this.y <= this.VISIBLE_VERTICAL_TILE_HEIGHT;
-};
+/**
+ * Moves the player up one row if the player is not on the top stone row.  If the player is on the top
+ * stone row, then the player is reset to their starting position and the game properties object is notified.
+ *
+ * @private
+ */
+Player.prototype._moveUp = function() {
 
-Player.prototype.moveUp = function() {
-
-    if(this.hasReachedTopRow()) {
+    if(this._hasReachedTopRow()) {
         gameProperties.playerReachedTopRow(this.onColumn());
         this.resetPosition();
     } else {
@@ -384,16 +396,46 @@ Player.prototype.moveUp = function() {
     }
 };
 
-Player.prototype.moveDown = function() {
+/**
+ * Checks to see if the player has reached the top of the walkable area in the game
+ *
+ * @returns {boolean} - true if on the top stone row; false otherwise
+ * @private
+ */
+Player.prototype._hasReachedTopRow = function() {
+    //return this.y <= this.VISIBLE_VERTICAL_TILE_HEIGHT;
+    return this.onRow() == 0;
+};
+
+/**
+ * Moves the player down one tile if the player is not on the bottom-most row.
+ *
+ * @private
+ */
+Player.prototype._moveDown = function() {
     if(this.y < this.startingYPosition) {
         this.y += this.VISIBLE_VERTICAL_TILE_HEIGHT;
     }
 };
 
+/**
+ * Sets the image of the player character.
+ *
+ * @param sprite - the character image to set the player to.
+ */
 Player.prototype.setCharacter = function(sprite) {
     this.sprite = sprite;
 };
 
+/**
+ * Represents a collectible on a tile in the game.
+ *
+ * @param x - the x-co-ordinate of the collectible's location
+ * @param y - the y co-ordinate of the collectible's location
+ * @param points - the number of points the collectible is worth
+ * @param sprite - the image that will be drawn on the screen that represents the collectible
+ * @constructor
+ */
 var Collectible = function(x, y, points, sprite) {
     MovableItem.call(this, x, y, 95, 57);
 
@@ -403,6 +445,13 @@ var Collectible = function(x, y, points, sprite) {
 
 Collectible.inheritsFrom(MovableItem);
 
+/**
+ * Manages any collectibles on the screen.
+ *
+ * @param usableGameRows - number of rows that the collectibles can be located
+ * @param usableGameColumns - number of columns in the game that the collectibles can be located
+ * @constructor
+ */
 var CollectibleManager = function(usableGameRows, usableGameColumns) {
     this.rows = usableGameRows;
     this.columns = usableGameColumns;
@@ -420,6 +469,9 @@ var CollectibleManager = function(usableGameRows, usableGameColumns) {
     }
 };
 
+/**
+ * Move collectible to a new position
+ */
 CollectibleManager.prototype.resetCollectible = function() {
     var collectibleSelection = Math.floor(Math.random() * this.availableCollectibles.length);
     var sprite = this.availableCollectibles[collectibleSelection].sprite;
@@ -433,12 +485,18 @@ CollectibleManager.prototype.resetCollectible = function() {
     this.currentCollectibles.push(new Collectible(x, y, points, sprite));
 };
 
+/**
+ * If there is no collectible in the array and the collectibles mode is on create a new collectible.
+ */
 CollectibleManager.prototype.update = function() {
     if(gameProperties.collectiblesOn && this.currentCollectibles.length == 0) {
         this.resetCollectible();
     }
 };
 
+/**
+ * Remove any collectibles in the collectibles array.
+ */
 CollectibleManager.prototype.removeCollectibles = function () {
     this.currentCollectibles = [];
 };
@@ -751,7 +809,7 @@ GameProperties.prototype.reset = function() {
     this.consecutiveSuccesses = 0;
     this.currentGamePoints = 0;
     this._initializeWalkingArray();
-    player.reset();
+    player.resetPosition();
 };
 
 /**
